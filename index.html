@@ -3,40 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload de Imagens</title>
+    <title>Upload e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         #drop-area {
             border: 2px dashed #ccc;
             padding: 20px;
             text-align: center;
-            width: 300px;
-            background-color: #fff;
+            margin-bottom: 20px;
+            cursor: pointer;
         }
         #drop-area.highlight {
             border-color: #000;
+        }
+        .image-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-item {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .image-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sortable-ghost {
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
 
-<div id="drop-area">
-    <p>Arraste e solte suas imagens aqui</p>
-    <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
-    <label class="button" for="fileElem">Selecione arquivos</label>
+<div class="container">
+    <h1>Gerenciamento de Imagens</h1>
+
+    <!-- Área de Upload -->
+    <div id="drop-area">
+        <p>Arraste e solte suas imagens aqui</p>
+        <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
+        <label class="button" for="fileElem">Selecione arquivos</label>
+    </div>
+
+    <!-- Lista de Imagens -->
+    <div class="image-list" id="image-list"></div>
 </div>
 
+<!-- Bibliotecas -->
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
-    // Substitua pelas suas credenciais do Firebase
+    // Configuração do Firebase
     const firebaseConfig = {
         apiKey: "SUA_API_KEY",
         authDomain: "SEU_AUTH_DOMAIN",
@@ -52,7 +101,61 @@
 
     const dropArea = document.getElementById('drop-area');
     const fileElem = document.getElementById('fileElem');
+    const imageList = document.getElementById('image-list');
 
+    let images = []; // Array para armazenar as imagens
+
+    // Carrega as imagens existentes no Firebase
+    function loadImages() {
+        const storageRef = storage.ref('images/');
+        storageRef.listAll().then((res) => {
+            res.items.forEach((itemRef) => {
+                itemRef.getDownloadURL().then((url) => {
+                    addImageToList(url, itemRef.name);
+                });
+            });
+        }).catch((error) => {
+            console.error('Erro ao listar imagens:', error);
+        });
+    }
+
+    // Adiciona uma imagem à lista visual
+    function addImageToList(url, name) {
+        const div = document.createElement('div');
+        div.className = 'image-item';
+        div.dataset.name = name;
+
+        const img = document.createElement('img');
+        img.src = url;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.onclick = () => deleteImage(name);
+
+        div.appendChild(img);
+        div.appendChild(deleteBtn);
+        imageList.appendChild(div);
+
+        images.push({ name, url });
+        initSortable();
+    }
+
+    // Exclui uma imagem do Firebase e da lista
+    function deleteImage(name) {
+        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+
+        const storageRef = storage.ref(`images/${name}`);
+        storageRef.delete().then(() => {
+            const div = document.querySelector(`.image-item[data-name="${name}"]`);
+            if (div) div.remove();
+            images = images.filter(img => img.name !== name);
+        }).catch((error) => {
+            console.error('Erro ao excluir imagem:', error);
+        });
+    }
+
+    // Manipulação de eventos de upload
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
     });
@@ -76,10 +179,14 @@
         const dt = e.dataTransfer;
         const files = dt.files;
 
+        if (!confirm('Deseja realmente inserir estas imagens?')) return;
+
         handleFiles(files);
     }
 
     fileElem.addEventListener('change', () => {
+        if (!confirm('Deseja realmente inserir estas imagens?')) return;
+
         handleFiles(fileElem.files);
     });
 
@@ -87,42 +194,48 @@
         [...files].forEach(uploadFile);
     }
 
+    // Faz o upload de uma imagem para o Firebase
     function uploadFile(file) {
         const storageRef = storage.ref(`images/${file.name}`);
         const uploadTask = storageRef.put(file);
 
         uploadTask.on('state_changed',
             (snapshot) => {
-                // Progresso do upload
+                // Progresso do upload (opcional)
             },
             (error) => {
                 console.error('Erro ao fazer upload:', error);
+                alert('Erro ao carregar imagem.');
             },
             () => {
-                // Upload concluído
                 uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    console.log('Arquivo disponível em:', downloadURL);
-                    saveImageToDatabase(downloadURL);
+                    addImageToList(downloadURL, file.name);
+                    alert('Imagem carregada com sucesso!');
                 });
             }
         );
     }
 
-    function saveImageToDatabase(url) {
-        // Salva a URL da imagem no banco de dados (opcional)
-        fetch('/save-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Imagem salva:', data);
-        })
-        .catch(error => {
-            console.error('Erro ao salvar imagem:', error);
+    // Inicializa o SortableJS para permitir reordenação
+    function initSortable() {
+        Sortable.create(imageList, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: (evt) => {
+                const oldIndex = evt.oldIndex;
+                const newIndex = evt.newIndex;
+
+                // Reorganiza o array de imagens
+                const movedImage = images.splice(oldIndex, 1)[0];
+                images.splice(newIndex, 0, movedImage);
+
+                console.log('Nova ordem:', images);
+            }
         });
     }
+
+    // Carrega as imagens ao iniciar
+    loadImages();
 </script>
 
 </body>
