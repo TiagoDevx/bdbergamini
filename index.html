@@ -113,6 +113,8 @@
             res.items.forEach((itemRef) => {
                 itemRef.getDownloadURL().then((url) => {
                     addImageToList(url, itemRef.name);
+                }).catch((error) => {
+                    console.error('Erro ao obter URL da imagem:', error);
                 });
             });
         }).catch((error) => {
@@ -192,17 +194,20 @@
     });
 
     function handleFiles(files) {
+        console.log('Arquivos selecionados:', files); // Debug
         [...files].forEach(uploadFile);
     }
 
     // Faz o upload de uma imagem para o Firebase
     function uploadFile(file) {
+        console.log('Iniciando upload:', file.name); // Debug
         const storageRef = storage.ref(`images/${file.name}`);
         const uploadTask = storageRef.put(file);
 
         uploadTask.on('state_changed',
             (snapshot) => {
-                // Progresso do upload (opcional)
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log(`Progresso do upload (${file.name}): ${progress.toFixed(2)}%`); // Debug
             },
             (error) => {
                 console.error('Erro ao fazer upload:', error);
@@ -210,6 +215,7 @@
             },
             () => {
                 uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    console.log('Imagem carregada com sucesso:', downloadURL); // Debug
                     addImageToList(downloadURL, file.name);
                     alert('Imagem carregada com sucesso!');
                 });
