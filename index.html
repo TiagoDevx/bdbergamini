@@ -3,111 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Administração</title>
+    <title>Hipermercado Bergamini</title>
     <style>
-        /* Estilos Gerais */
+        /* Estilos do layout */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
         header {
-            background-color: #ff6f00; /* Laranja */
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        main {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        header .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
         }
-        .upload-area {
-            border: 2px dashed #ff6f00;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
+        header nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
         }
-        .upload-area:hover {
-            border-color: #e65100;
-        }
-        .upload-area p {
-            margin: 0;
-            font-size: 18px;
-            color: #555;
-        }
-        .preview-container {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .preview-item {
+        .carousel-container {
             position: relative;
-            width: 150px;
-            height: 150px;
-        }
-        .preview-item img {
             width: 100%;
-            height: 100%;
+            overflow: hidden;
+            padding: 20px 0;
+            background-color: #fff;
+        }
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel img {
+            width: 100%;
+            max-height: 400px;
             object-fit: cover;
             border-radius: 8px;
+            margin: 0 10px;
+            flex: 0 0 auto;
         }
-        .progress-bar-container {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
             margin-top: 10px;
         }
-        .progress-bar {
-            width: 0%;
+        .carousel-indicators span {
+            width: 10px;
             height: 10px;
-            background-color: #ff6f00;
-        }
-        .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: red;
-            color: white;
-            border: none;
+            background-color: #ccc;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            margin: 0 5px;
             cursor: pointer;
+        }
+        .carousel-indicators span.active {
+            background-color: #333;
+        }
+        .post-header {
             display: flex;
             align-items: center;
-            justify-content: center;
+            padding: 10px;
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
         }
-        .sortable-ghost {
-            opacity: 0.5;
+        .post-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
         }
-        button {
-            background-color: #ff6f00;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+        .post-author {
+            font-weight: bold;
         }
-        button:hover {
-            background-color: #e65100;
+        .post-date {
+            color: #666;
+            font-size: 14px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        footer a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
         }
     </style>
 </head>
@@ -115,41 +106,42 @@
 
 <!-- Cabeçalho -->
 <header>
-    Dashboard de Administração
+    <div class="logo">Hipermercado Bergamini</div>
+    <nav>
+        <a href="#">Compre Online</a>
+        <a href="#">Posso Ajudar?</a>
+        <a href="#">Cartão Bergamini</a>
+        <a href="#">Trabalhe Conosco</a>
+    </nav>
 </header>
 
-<div class="container">
-    <main>
-        <!-- Área de Upload -->
-        <div class="upload-area" id="drop-area">
-            <p>Arraste e solte suas imagens aqui ou clique para selecionar</p>
-            <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
-        </div>
-
-        <!-- Barra de Progresso -->
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-
-        <!-- Pré-visualização das Imagens -->
-        <div class="preview-container" id="preview-container">
-            <!-- As prévias serão exibidas aqui -->
-        </div>
-
-        <!-- Botão de Confirmação -->
-        <button id="confirm-btn" disabled>Confirmar Envio</button>
-
-        <!-- Lista de Imagens Carregadas -->
-        <div class="image-list" id="image-list">
-            <!-- As imagens carregadas serão exibidas aqui -->
-        </div>
-    </main>
+<!-- Carrossel de Imagens -->
+<div class="carousel-container">
+    <div class="carousel" id="carousel">
+        <!-- As imagens serão carregadas aqui -->
+    </div>
+    <div class="carousel-indicators" id="carousel-indicators">
+        <!-- Indicadores serão gerados dinamicamente -->
+    </div>
 </div>
 
-<!-- Bibliotecas -->
+<!-- Postagem Simulada -->
+<div class="post-header">
+    <img src="https://via.placeholder.com/50" alt="Profile">
+    <div>
+        <div class="post-author">Hipermercado Bergamini</div>
+        <div class="post-date">27 de setembro às 18:00</div>
+    </div>
+</div>
+
+<!-- Rodapé -->
+<footer>
+    <a href="#">Compartilhar</a>
+    <a href="#">Fechar</a>
+</footer>
+
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
     // Configuração do Firebase
     const firebaseConfig = {
@@ -166,147 +158,67 @@
     const app = firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
 
-    const dropArea = document.getElementById('drop-area');
-    const fileElem = document.getElementById('fileElem');
-    const previewContainer = document.getElementById('preview-container');
-    const progressBar = document.getElementById('progress-bar');
-    const confirmBtn = document.getElementById('confirm-btn');
-    const imageList = document.getElementById('image-list');
+    const carousel = document.getElementById('carousel');
+    const indicators = document.getElementById('carousel-indicators');
+    let currentIndex = 0;
 
-    let selectedFiles = []; // Array para armazenar os arquivos selecionados
+    // Função para buscar e carregar as imagens
+    function loadImages() {
+        const storageRef = storage.ref('images/');
+        storageRef.listAll().then((res) => {
+            res.items.forEach((itemRef, index) => {
+                itemRef.getDownloadURL().then((url) => {
+                    // Adiciona a imagem ao carrossel
+                    const imgElement = document.createElement('img');
+                    imgElement.src = url;
+                    imgElement.alt = `Imagem ${index + 1}`;
+                    carousel.appendChild(imgElement);
 
-    // Manipulação de eventos de upload
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-    });
-
-    dropArea.addEventListener('drop', handleDrop, false);
-
-    dropArea.addEventListener('click', () => fileElem.click());
-
-    fileElem.addEventListener('change', handleFiles);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-
-        handleFiles(files);
-    }
-
-    function handleFiles(files) {
-        selectedFiles = [...files];
-        previewContainer.innerHTML = ''; // Limpa as prévias anteriores
-
-        // Exibe as prévias das imagens
-        selectedFiles.forEach((file) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const div = document.createElement('div');
-                div.className = 'preview-item';
-
-                const img = document.createElement('img');
-                img.src = e.target.result;
-
-                div.appendChild(img);
-                previewContainer.appendChild(div);
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // Habilita o botão de confirmação
-        confirmBtn.disabled = false;
-    }
-
-    // Função para confirmar o envio das imagens
-    confirmBtn.addEventListener('click', () => {
-        if (!confirm('Deseja realmente inserir estas imagens no aplicativo?')) return;
-
-        selectedFiles.forEach((file) => uploadFile(file));
-        selectedFiles = [];
-        previewContainer.innerHTML = '';
-        confirmBtn.disabled = true;
-    });
-
-    // Faz o upload de uma imagem para o Firebase
-    function uploadFile(file) {
-        const storageRef = storage.ref(`images/${file.name}`);
-        const uploadTask = storageRef.put(file);
-
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                progressBar.style.width = `${progress}%`;
-            },
-            (error) => {
-                console.error('Erro ao fazer upload:', error);
-                alert('Erro ao carregar imagem.');
-            },
-            () => {
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    addImageToList(downloadURL, file.name);
-                    alert('Imagem carregada com sucesso!');
+                    // Adiciona indicador
+                    const indicator = document.createElement('span');
+                    indicator.dataset.index = index;
+                    indicator.onclick = () => goToSlide(index);
+                    indicators.appendChild(indicator);
                 });
-            }
-        );
-    }
+            });
 
-    // Adiciona uma imagem à lista visual
-    function addImageToList(url, name) {
-        const div = document.createElement('div');
-        div.className = 'image-item';
-        div.dataset.name = name;
-
-        const img = document.createElement('img');
-        img.src = url;
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = () => deleteImage(name);
-
-        div.appendChild(img);
-        div.appendChild(deleteBtn);
-        imageList.appendChild(div);
-
-        initSortable();
-    }
-
-    // Exclui uma imagem do Firebase e da lista
-    function deleteImage(name) {
-        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
-
-        const storageRef = storage.ref(`images/${name}`);
-        storageRef.delete().then(() => {
-            const div = document.querySelector(`.image-item[data-name="${name}"]`);
-            if (div) div.remove();
+            // Inicia o carrossel após carregar as imagens
+            setupCarousel(res.items.length);
         }).catch((error) => {
-            console.error('Erro ao excluir imagem:', error);
+            console.error('Erro ao listar imagens:', error);
         });
     }
 
-    // Inicializa o SortableJS para permitir reordenação
-    function initSortable() {
-        Sortable.create(imageList, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            onEnd: (evt) => {
-                console.log('Nova ordem:', evt);
-            }
-        });
+    // Configura o carrossel
+    function setupCarousel(totalSlides) {
+        if (totalSlides === 0) return;
+
+        // Define o primeiro indicador como ativo
+        indicators.children[0].classList.add('active');
+
+        // Função para navegar entre slides
+        function updateCarousel() {
+            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+            Array.from(indicators.children).forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        // Avança automaticamente
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateCarousel();
+        }, 5000); // Altera a cada 5 segundos
+
+        // Função para ir para um slide específico
+        window.goToSlide = (index) => {
+            currentIndex = index;
+            updateCarousel();
+        };
     }
+
+    // Carrega as imagens ao iniciar
+    loadImages();
 </script>
 
 </body>
