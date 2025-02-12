@@ -70,40 +70,6 @@
         #drop-area.highlight {
             border-color: #ff6347;
         }
-        .image-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .image-item {
-            position: relative;
-            width: 150px;
-            height: 150px;
-        }
-        .image-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .image-item .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #ff6347;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .sortable-ghost {
-            opacity: 0.5;
-        }
         .progress-bar-container {
             margin-top: 10px;
             width: 100%;
@@ -116,30 +82,39 @@
             height: 10px;
             background-color: #ff7f50;
         }
-        .action-buttons {
+        .timeline {
             margin-top: 20px;
-            display: flex;
-            gap: 10px;
+            padding: 20px;
+            background-color: #fffaf0;
+            border: 1px solid #ff7f50;
+            border-radius: 8px;
+            text-align: center;
         }
-        .action-buttons button {
+        .timeline h3 {
+            margin-bottom: 15px;
+            color: #ff7f50;
+        }
+        .timeline button {
             padding: 10px 20px;
+            margin: 5px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s ease;
         }
-        .action-buttons .send-now {
+        .timeline .send-now {
             background-color: #4CAF50;
             color: white;
         }
-        .action-buttons .send-now:hover {
+        .timeline .send-now:hover {
             background-color: #45a049;
         }
-        .action-buttons .schedule {
+        .timeline .schedule {
             background-color: #ff7f50;
             color: white;
         }
-        .action-buttons .schedule:hover {
+        .timeline .schedule:hover {
             background-color: #ff6347;
         }
         .schedule-section {
@@ -166,7 +141,7 @@
         .delete-all-btn {
             margin-top: 20px;
             padding: 10px 20px;
-            background-color: #ff4500; /* Vermelho alaranjado */
+            background-color: #ff4500;
             color: white;
             border: none;
             border-radius: 5px;
@@ -175,7 +150,7 @@
             transition: background-color 0.3s ease;
         }
         .delete-all-btn:hover {
-            background-color: #b22222; /* Vermelho escuro */
+            background-color: #b22222;
         }
     </style>
 </head>
@@ -200,10 +175,11 @@
     <div class="progress-bar-container">
         <div class="progress-bar" id="progress-bar"></div>
     </div>
-    <!-- Botões de Ação -->
-    <div class="action-buttons">
-        <button class="send-now" onclick="sendNow()">Enviar Agora</button>
-        <button class="schedule" onclick="toggleScheduleSection()">Agendar Post</button>
+    <!-- Timeline -->
+    <div class="timeline" id="timeline">
+        <h3>O que você deseja fazer com as imagens?</h3>
+        <button class="send-now" onclick="sendNow()">Vincular Agora</button>
+        <button class="schedule" onclick="showScheduleSection()">Agendar Post</button>
     </div>
     <!-- Seção de Agendamento -->
     <div class="schedule-section" id="schedule-section">
@@ -341,6 +317,7 @@
 
     function handleFiles(files) {
         [...files].forEach(uploadFile);
+        document.getElementById('timeline').style.display = 'block'; // Mostra a timeline após o upload
     }
 
     function uploadFile(file) {
@@ -365,12 +342,13 @@
     }
 
     function sendNow() {
-        alert('As imagens foram enviadas e estão disponíveis agora!');
+        alert('As imagens foram vinculadas e estão disponíveis agora!');
+        document.getElementById('timeline').style.display = 'none'; // Esconde a timeline após a ação
     }
 
-    function toggleScheduleSection() {
-        const scheduleSection = document.getElementById('schedule-section');
-        scheduleSection.style.display = scheduleSection.style.display === 'none' ? 'block' : 'none';
+    function showScheduleSection() {
+        document.getElementById('schedule-section').style.display = 'block';
+        document.getElementById('timeline').style.display = 'none'; // Esconde a timeline após escolher agendamento
     }
 
     function schedulePost() {
