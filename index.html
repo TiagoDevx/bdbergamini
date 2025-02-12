@@ -157,6 +157,28 @@
             margin-bottom: 15px;
             color: #ff7f50;
         }
+        .schedule-form {
+            margin-top: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .schedule-form input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .schedule-form button {
+            padding: 10px 20px;
+            background-color: #ff7f50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .schedule-form button:hover {
+            background-color: #ff6347;
+        }
         .delete-all-btn {
             margin-top: 20px;
             padding: 10px 20px;
@@ -197,7 +219,14 @@
     <!-- Botões de Ação -->
     <div class="action-buttons">
         <button class="send-now" onclick="sendNow()">Vincular Agora</button>
-        <button class="schedule" onclick="showScheduleSection()">Agendar Post</button>
+        <button class="schedule" onclick="showScheduleForm()">Agendar Post</button>
+    </div>
+    <!-- Formulário de Agendamento -->
+    <div class="schedule-form" id="schedule-form">
+        <h3>Agendar Post</h3>
+        <input type="date" id="start-date" placeholder="Data de Início">
+        <input type="date" id="end-date" placeholder="Data de Término">
+        <button onclick="scheduleImages()">Confirmar Agendamento</button>
     </div>
     <!-- Lista de Imagens Vinculadas -->
     <div class="image-list" id="image-list"></div>
@@ -363,8 +392,31 @@
         alert('As imagens foram vinculadas e estão disponíveis agora!');
     }
 
-    function showScheduleSection() {
+    function showScheduleForm() {
+        document.getElementById('schedule-form').style.display = 'flex';
+    }
+
+    function scheduleImages() {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        if (!startDate || !endDate) {
+            alert('Por favor, selecione as datas de início e término.');
+            return;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('A data de início não pode ser maior que a data de término.');
+            return;
+        }
+
+        images.forEach(image => {
+            schedulePost(startDate, endDate, image.url, image.name);
+        });
+
+        document.getElementById('schedule-form').style.display = 'none';
         document.getElementById('scheduled-posts-section').style.display = 'block';
+        alert('Imagens agendadas com sucesso!');
     }
 
     function schedulePost(startDate, endDate, imageUrl, imageName) {
