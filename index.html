@@ -274,6 +274,7 @@
         if (username === USERNAME && password === PASSWORD) {
             document.querySelector('.login-container').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
+            loadImages();
         } else {
             alert('Usuário ou senha incorretos!');
         }
@@ -305,7 +306,9 @@
         storageRef.listAll().then((res) => {
             res.items.forEach((itemRef) => {
                 itemRef.getDownloadURL().then((url) => {
-                    addImageToList(url, itemRef.name, imageList);
+                    const imageName = itemRef.name;
+                    addImageToList(url, imageName, imageList);
+                    images.push({ name: imageName, url });
                 }).catch((error) => {
                     console.error('Erro ao obter URL da imagem:', error);
                 });
@@ -355,38 +358,42 @@
     function deleteAllImages() {
         if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
 
-        const allImages = [...images, ...scheduledImages];
-        if (allImages.length === 0) {
-            alert('Não há imagens para excluir.');
-            return;
-        }
-
-        let deletedCount = 0;
-        let errorCount = 0;
-
-        allImages.forEach(img => {
-            const storageRef = storage.ref(`images/${img.name}`);
-            storageRef.delete().then(() => {
-                deletedCount++;
-                updateUIAfterDeletion(img.name);
-            }).catch((error) => {
-                console.error(`Erro ao excluir imagem "${img.name}":`, error);
-                errorCount++;
-            });
-        });
-
-        // Função para atualizar a interface após exclusão
-        function updateUIAfterDeletion(name) {
-            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
-            if (div) div.remove();
-
-            images = images.filter(img => img.name !== name);
-            scheduledImages = scheduledImages.filter(img => img.name !== name);
-
-            if (deletedCount + errorCount === allImages.length) {
-                alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
+        const storageRef = storage.ref('images/');
+        storageRef.listAll().then((res) => {
+            if (res.items.length === 0) {
+                alert('Não há imagens para excluir.');
+                return;
             }
-        }
+
+            let deletedCount = 0;
+            let errorCount = 0;
+
+            res.items.forEach((itemRef) => {
+                itemRef.delete().then(() => {
+                    deletedCount++;
+                    updateUIAfterDeletion(itemRef.name);
+                }).catch((error) => {
+                    console.error(`Erro ao excluir imagem "${itemRef.name}":`, error);
+                    errorCount++;
+                });
+            });
+
+            // Função para atualizar a interface após exclusão
+            function updateUIAfterDeletion(name) {
+                const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
+                if (div) div.remove();
+
+                images = images.filter(img => img.name !== name);
+                scheduledImages = scheduledImages.filter(img => img.name !== name);
+
+                if (deletedCount + errorCount === res.items.length) {
+                    alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
+                }
+            }
+        }).catch((error) => {
+            console.error('Erro ao listar imagens para exclusão:', error);
+            alert('Erro ao acessar imagens. Verifique o console para mais detalhes.');
+        });
     }
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
