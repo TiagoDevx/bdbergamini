@@ -193,6 +193,16 @@
         .delete-all-btn:hover {
             background-color: #b22222;
         }
+        .scheduled-post-item .period-label {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -324,7 +334,7 @@
 
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
-            const div = document.querySelector(`.image-item[data-name="${name}"]`);
+            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
             if (div) div.remove();
 
             if (listElement === imageList) {
@@ -496,8 +506,12 @@
             deleteBtn.className = 'delete-btn';
             deleteBtn.innerHTML = '&times;';
             deleteBtn.onclick = () => deleteScheduledPost(image.name);
+            const periodLabel = document.createElement('div');
+            periodLabel.className = 'period-label';
+            periodLabel.textContent = `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`;
             div.appendChild(img);
             div.appendChild(deleteBtn);
+            div.appendChild(periodLabel);
             scheduledPostsList.appendChild(div);
 
             // Remove automaticamente após o término do período
