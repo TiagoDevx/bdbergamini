@@ -59,7 +59,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             display: none;
         }
-        #drop-area {
+        #drop-area, #scheduled-drop-area {
             border: 2px dashed #ff7f50;
             padding: 20px;
             text-align: center;
@@ -67,7 +67,7 @@
             cursor: pointer;
             background-color: #fffaf0;
         }
-        #drop-area.highlight {
+        #drop-area.highlight, #scheduled-drop-area.highlight {
             border-color: #ff6347;
         }
         .progress-bar-container {
@@ -145,7 +145,7 @@
             justify-content: center;
             font-size: 10px; /* Ícone menor */
         }
-        .scheduled-posts-section {
+        .scheduled-section {
             margin-top: 20px;
             padding: 20px;
             background-color: #fffaf0;
@@ -153,7 +153,7 @@
             border-radius: 8px;
             display: none;
         }
-        .scheduled-posts-section h3 {
+        .scheduled-section h3 {
             margin-bottom: 15px;
             color: #ff7f50;
         }
@@ -207,32 +207,41 @@
 
 <div class="container">
     <h1>Gerenciamento de Imagens</h1>
-    <!-- Área de Upload -->
-    <div id="drop-area">
-        <p>Arraste e solte suas imagens aqui</p>
-        <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
-        <label class="button" for="fileElem">Selecione arquivos</label>
-    </div>
-    <div class="progress-bar-container">
-        <div class="progress-bar" id="progress-bar"></div>
+    <!-- Área de Upload (Vincular Agora) -->
+    <div>
+        <h2>Vincular Agora</h2>
+        <div id="drop-area">
+            <p>Arraste e solte suas imagens aqui</p>
+            <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
+            <label class="button" for="fileElem">Selecione arquivos</label>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="image-list" id="image-list"></div>
     </div>
     <!-- Botões de Ação -->
     <div class="action-buttons">
         <button class="send-now" onclick="sendNow()">Vincular Agora</button>
-        <button class="schedule" onclick="showScheduleForm()">Agendar Post</button>
+        <button class="schedule" onclick="showScheduledSection()">Agendar Post</button>
     </div>
-    <!-- Formulário de Agendamento -->
-    <div class="schedule-form" id="schedule-form">
-        <h3>Agendar Post</h3>
-        <input type="date" id="start-date" placeholder="Data de Início">
-        <input type="date" id="end-date" placeholder="Data de Término">
-        <button onclick="scheduleImages()">Confirmar Agendamento</button>
-    </div>
-    <!-- Lista de Imagens Vinculadas -->
-    <div class="image-list" id="image-list"></div>
-    <!-- Seção de Posts Programados -->
-    <div class="scheduled-posts-section" id="scheduled-posts-section">
-        <h3>Posts Programados</h3>
+    <!-- Seção de Agendamento -->
+    <div class="scheduled-section" id="scheduled-section">
+        <h2>Agendar Post</h2>
+        <div id="scheduled-drop-area">
+            <p>Arraste e solte suas imagens aqui</p>
+            <input type="file" id="scheduled-fileElem" multiple accept="image/*" style="display:none">
+            <label class="button" for="scheduled-fileElem">Selecione arquivos</label>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="scheduled-progress-bar"></div>
+        </div>
+        <div class="schedule-form" id="schedule-form">
+            <h3>Definir Período</h3>
+            <input type="date" id="start-date" placeholder="Data de Início">
+            <input type="date" id="end-date" placeholder="Data de Término">
+            <button onclick="scheduleImages()">Confirmar Agendamento</button>
+        </div>
         <div class="scheduled-posts-list" id="scheduled-posts-list"></div>
     </div>
     <button class="delete-all-btn" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
@@ -271,18 +280,20 @@
     const app = firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
     const dropArea = document.getElementById('drop-area');
+    const scheduledDropArea = document.getElementById('scheduled-drop-area');
     const fileElem = document.getElementById('fileElem');
+    const scheduledFileElem = document.getElementById('scheduled-fileElem');
     const imageList = document.getElementById('image-list');
     const scheduledPostsList = document.getElementById('scheduled-posts-list');
     let images = [];
-    let scheduledPosts = [];
+    let scheduledImages = [];
 
     function loadImages() {
         const storageRef = storage.ref('images/');
         storageRef.listAll().then((res) => {
             res.items.forEach((itemRef) => {
                 itemRef.getDownloadURL().then((url) => {
-                    addImageToList(url, itemRef.name);
+                    addImageToList(url, itemRef.name, imageList);
                 }).catch((error) => {
                     console.error('Erro ao obter URL da imagem:', error);
                 });
@@ -292,7 +303,7 @@
         });
     }
 
-    function addImageToList(url, name) {
+    function addImageToList(url, name, listElement) {
         const div = document.createElement('div');
         div.className = 'image-item';
         div.dataset.name = name;
@@ -301,20 +312,24 @@
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete-btn';
         deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = () => deleteImage(name);
+        deleteBtn.onclick = () => deleteImage(name, listElement);
         div.appendChild(img);
         div.appendChild(deleteBtn);
-        imageList.appendChild(div);
-        images.push({ name, url });
+        listElement.appendChild(div);
+        return { name, url };
     }
 
-    function deleteImage(name) {
+    function deleteImage(name, listElement) {
         if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
             const div = document.querySelector(`.image-item[data-name="${name}"]`);
             if (div) div.remove();
-            images = images.filter(img => img.name !== name);
+            if (listElement === imageList) {
+                images = images.filter(img => img.name !== name);
+            } else if (listElement === scheduledPostsList) {
+                scheduledImages = scheduledImages.filter(img => img.name !== name);
+            }
         }).catch((error) => {
             console.error('Erro ao excluir imagem:', error);
         });
@@ -322,7 +337,7 @@
 
     function deleteAllImages() {
         if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
-        images.forEach(img => {
+        [...images, ...scheduledImages].forEach(img => {
             const storageRef = storage.ref(`images/${img.name}`);
             storageRef.delete().catch((error) => {
                 console.error('Erro ao excluir imagem:', error);
@@ -331,11 +346,12 @@
         imageList.innerHTML = '';
         scheduledPostsList.innerHTML = '';
         images = [];
-        scheduledPosts = [];
+        scheduledImages = [];
     }
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
+        scheduledDropArea.addEventListener(eventName, preventDefaults, false);
     });
 
     function preventDefaults(e) {
@@ -345,35 +361,50 @@
 
     ['dragenter', 'dragover'].forEach(eventName => {
         dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+        scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.add('highlight'), false);
     });
 
     ['dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
+        scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.remove('highlight'), false);
     });
 
     dropArea.addEventListener('drop', handleDrop, false);
+    scheduledDropArea.addEventListener('drop', handleScheduledDrop, false);
 
     function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        handleFiles(files);
+        handleFiles(files, imageList, images);
+    }
+
+    function handleScheduledDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files, scheduledPostsList, scheduledImages);
     }
 
     fileElem.addEventListener('change', () => {
-        handleFiles(fileElem.files);
+        handleFiles(fileElem.files, imageList, images);
     });
 
-    function handleFiles(files) {
-        [...files].forEach(uploadFile);
+    scheduledFileElem.addEventListener('change', () => {
+        handleFiles(scheduledFileElem.files, scheduledPostsList, scheduledImages);
+    });
+
+    function handleFiles(files, listElement, imageArray) {
+        [...files].forEach(file => uploadFile(file, listElement, imageArray));
     }
 
-    function uploadFile(file) {
+    function uploadFile(file, listElement, imageArray) {
         const storageRef = storage.ref(`images/${file.name}`);
         const uploadTask = storageRef.put(file);
+        const progressBar = listElement === imageList ? document.getElementById('progress-bar') : document.getElementById('scheduled-progress-bar');
+
         uploadTask.on('state_changed',
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                document.getElementById('progress-bar').style.width = `${progress}%`;
+                progressBar.style.width = `${progress}%`;
             },
             (error) => {
                 console.error('Erro ao fazer upload:', error);
@@ -381,8 +412,9 @@
             },
             () => {
                 uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    addImageToList(downloadURL, file.name);
-                    document.getElementById('progress-bar').style.width = '0%';
+                    const image = addImageToList(downloadURL, file.name, listElement);
+                    imageArray.push(image);
+                    progressBar.style.width = '0%';
                 });
             }
         );
@@ -392,7 +424,8 @@
         alert('As imagens foram vinculadas e estão disponíveis agora!');
     }
 
-    function showScheduleForm() {
+    function showScheduledSection() {
+        document.getElementById('scheduled-section').style.display = 'block';
         document.getElementById('schedule-form').style.display = 'flex';
     }
 
@@ -410,50 +443,43 @@
             return;
         }
 
-        images.forEach(image => {
-            schedulePost(startDate, endDate, image.url, image.name);
+        scheduledImages.forEach(image => {
+            const startTime = new Date(startDate).getTime();
+            const endTime = new Date(endDate).getTime();
+            const now = Date.now();
+
+            if (startTime > now) {
+                alert(`A imagem "${image.name}" será exibida a partir do dia ${startDate}.`);
+            }
+
+            if (endTime <= now) {
+                alert(`O período de exibição da imagem "${image.name}" já terminou. A imagem será excluída.`);
+                deleteScheduledPost(image.name);
+                return;
+            }
+
+            // Adiciona à lista de posts programados
+            const div = document.createElement('div');
+            div.className = 'scheduled-post-item';
+            div.dataset.name = image.name;
+            const img = document.createElement('img');
+            img.src = image.url;
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.onclick = () => deleteScheduledPost(image.name);
+            div.appendChild(img);
+            div.appendChild(deleteBtn);
+            scheduledPostsList.appendChild(div);
+
+            // Remove automaticamente após o término do período
+            setTimeout(() => {
+                deleteScheduledPost(image.name);
+                alert(`A imagem "${image.name}" foi removida automaticamente após o término do período.`);
+            }, endTime - now);
         });
 
-        document.getElementById('schedule-form').style.display = 'none';
-        document.getElementById('scheduled-posts-section').style.display = 'block';
         alert('Imagens agendadas com sucesso!');
-    }
-
-    function schedulePost(startDate, endDate, imageUrl, imageName) {
-        const now = Date.now();
-        const startTime = new Date(startDate).getTime();
-        const endTime = new Date(endDate).getTime();
-
-        if (startTime > now) {
-            alert('As imagens serão exibidas a partir do dia selecionado.');
-        }
-
-        if (endTime <= now) {
-            alert('O período de exibição já terminou. As imagens serão excluídas.');
-            deleteScheduledPost(imageName);
-            return;
-        }
-
-        // Adiciona à lista de posts programados
-        const div = document.createElement('div');
-        div.className = 'scheduled-post-item';
-        div.dataset.name = imageName;
-        const img = document.createElement('img');
-        img.src = imageUrl;
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = () => deleteScheduledPost(imageName);
-        div.appendChild(img);
-        div.appendChild(deleteBtn);
-        scheduledPostsList.appendChild(div);
-        scheduledPosts.push({ name: imageName, url: imageUrl });
-
-        // Remove automaticamente após o término do período
-        setTimeout(() => {
-            deleteScheduledPost(imageName);
-            alert('A imagem foi removida automaticamente após o término do período.');
-        }, endTime - now);
     }
 
     function deleteScheduledPost(name) {
@@ -461,7 +487,7 @@
         storageRef.delete().then(() => {
             const div = document.querySelector(`.scheduled-post-item[data-name="${name}"]`);
             if (div) div.remove();
-            scheduledPosts = scheduledPosts.filter(post => post.name !== name);
+            scheduledImages = scheduledImages.filter(post => post.name !== name);
         }).catch((error) => {
             console.error('Erro ao excluir imagem programada:', error);
         });
