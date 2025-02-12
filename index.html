@@ -249,7 +249,9 @@
         <div class="schedule-form" id="schedule-form">
             <h3>Definir Período</h3>
             <input type="date" id="start-date" placeholder="Data de Início">
+            <input type="time" id="start-time" placeholder="Hora de Início">
             <input type="date" id="end-date" placeholder="Data de Término">
+            <input type="time" id="end-time" placeholder="Hora de Término">
             <button onclick="scheduleImages()">Confirmar Agendamento</button>
         </div>
         <div class="scheduled-posts-list" id="scheduled-posts-list"></div>
@@ -469,28 +471,34 @@
 
     function scheduleImages() {
         const startDate = document.getElementById('start-date').value;
+        const startTime = document.getElementById('start-time').value;
         const endDate = document.getElementById('end-date').value;
+        const endTime = document.getElementById('end-time').value;
 
-        if (!startDate || !endDate) {
-            alert('Por favor, selecione as datas de início e término.');
+        if (!startDate || !startTime || !endDate || !endTime) {
+            alert('Por favor, preencha todos os campos de data e hora.');
             return;
         }
 
-        if (new Date(startDate) > new Date(endDate)) {
-            alert('A data de início não pode ser maior que a data de término.');
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+        const now = new Date();
+
+        if (startDateTime > endDateTime) {
+            alert('A data/hora de início não pode ser maior que a data/hora de término.');
             return;
         }
 
         scheduledImages.forEach(image => {
-            const startTime = new Date(startDate).getTime();
-            const endTime = new Date(endDate).getTime();
-            const now = Date.now();
+            const startTimeMs = startDateTime.getTime();
+            const endTimeMs = endDateTime.getTime();
+            const nowMs = now.getTime();
 
-            if (startTime > now) {
-                alert(`A imagem "${image.name}" será exibida a partir do dia ${startDate}.`);
+            if (startTimeMs > nowMs) {
+                alert(`A imagem "${image.name}" será exibida a partir de ${startDateTime.toLocaleString()}.`);
             }
 
-            if (endTime <= now) {
+            if (endTimeMs <= nowMs) {
                 alert(`O período de exibição da imagem "${image.name}" já terminou. A imagem será excluída.`);
                 deleteScheduledPost(image.name);
                 return;
@@ -508,7 +516,7 @@
             deleteBtn.onclick = () => deleteScheduledPost(image.name);
             const periodLabel = document.createElement('div');
             periodLabel.className = 'period-label';
-            periodLabel.textContent = `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`;
+            periodLabel.textContent = `${startDateTime.toLocaleString()} - ${endDateTime.toLocaleString()}`;
             div.appendChild(img);
             div.appendChild(deleteBtn);
             div.appendChild(periodLabel);
@@ -518,7 +526,7 @@
             setTimeout(() => {
                 deleteScheduledPost(image.name);
                 alert(`A imagem "${image.name}" foi removida automaticamente após o término do período.`);
-            }, endTime - now);
+            }, endTimeMs - nowMs);
         });
 
         alert('Imagens agendadas com sucesso!');
