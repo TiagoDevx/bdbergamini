@@ -82,61 +82,78 @@
             height: 10px;
             background-color: #ff7f50;
         }
-        .timeline {
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .action-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .action-buttons .send-now {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .action-buttons .send-now:hover {
+            background-color: #45a049;
+        }
+        .action-buttons .schedule {
+            background-color: #ff7f50;
+            color: white;
+        }
+        .action-buttons .schedule:hover {
+            background-color: #ff6347;
+        }
+        .scheduled-posts-section {
             margin-top: 20px;
             padding: 20px;
             background-color: #fffaf0;
             border: 1px solid #ff7f50;
             border-radius: 8px;
-            text-align: center;
+            display: none;
         }
-        .timeline h3 {
+        .scheduled-posts-section h3 {
             margin-bottom: 15px;
             color: #ff7f50;
         }
-        .timeline button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+        .scheduled-posts-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .timeline .send-now {
-            background-color: #4CAF50;
-            color: white;
+        .scheduled-post-item {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ff7f50;
+            border-radius: 8px;
+            padding: 5px;
+            background-color: #fff;
         }
-        .timeline .send-now:hover {
-            background-color: #45a049;
+        .scheduled-post-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
         }
-        .timeline .schedule {
-            background-color: #ff7f50;
-            color: white;
-        }
-        .timeline .schedule:hover {
-            background-color: #ff6347;
-        }
-        .schedule-section {
-            margin-top: 20px;
-            display: none;
-        }
-        .schedule-section input {
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .schedule-section button {
-            padding: 10px 20px;
-            background-color: #ff7f50;
+        .scheduled-post-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff6347;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
-        }
-        .schedule-section button:hover {
-            background-color: #ff6347;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .delete-all-btn {
             margin-top: 20px;
@@ -175,21 +192,18 @@
     <div class="progress-bar-container">
         <div class="progress-bar" id="progress-bar"></div>
     </div>
-    <!-- Timeline -->
-    <div class="timeline" id="timeline">
-        <h3>O que você deseja fazer com as imagens?</h3>
+    <!-- Botões de Ação -->
+    <div class="action-buttons">
         <button class="send-now" onclick="sendNow()">Vincular Agora</button>
         <button class="schedule" onclick="showScheduleSection()">Agendar Post</button>
     </div>
-    <!-- Seção de Agendamento -->
-    <div class="schedule-section" id="schedule-section">
-        <h3>Agendar Post</h3>
-        <input type="date" id="start-date" placeholder="Data de Início">
-        <input type="date" id="end-date" placeholder="Data de Término">
-        <button onclick="schedulePost()">Confirmar Agendamento</button>
-    </div>
-    <!-- Lista de Imagens -->
+    <!-- Lista de Imagens Vinculadas -->
     <div class="image-list" id="image-list"></div>
+    <!-- Seção de Posts Programados -->
+    <div class="scheduled-posts-section" id="scheduled-posts-section">
+        <h3>Posts Programados</h3>
+        <div class="scheduled-posts-list" id="scheduled-posts-list"></div>
+    </div>
     <button class="delete-all-btn" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
 </div>
 
@@ -228,7 +242,9 @@
     const dropArea = document.getElementById('drop-area');
     const fileElem = document.getElementById('fileElem');
     const imageList = document.getElementById('image-list');
+    const scheduledPostsList = document.getElementById('scheduled-posts-list');
     let images = [];
+    let scheduledPosts = [];
 
     function loadImages() {
         const storageRef = storage.ref('images/');
@@ -259,7 +275,6 @@
         div.appendChild(deleteBtn);
         imageList.appendChild(div);
         images.push({ name, url });
-        initSortable();
     }
 
     function deleteImage(name) {
@@ -283,7 +298,9 @@
             });
         });
         imageList.innerHTML = '';
+        scheduledPostsList.innerHTML = '';
         images = [];
+        scheduledPosts = [];
     }
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -317,7 +334,6 @@
 
     function handleFiles(files) {
         [...files].forEach(uploadFile);
-        document.getElementById('timeline').style.display = 'block'; // Mostra a timeline após o upload
     }
 
     function uploadFile(file) {
@@ -343,45 +359,57 @@
 
     function sendNow() {
         alert('As imagens foram vinculadas e estão disponíveis agora!');
-        document.getElementById('timeline').style.display = 'none'; // Esconde a timeline após a ação
     }
 
     function showScheduleSection() {
-        document.getElementById('schedule-section').style.display = 'block';
-        document.getElementById('timeline').style.display = 'none'; // Esconde a timeline após escolher agendamento
+        document.getElementById('scheduled-posts-section').style.display = 'block';
     }
 
-    function schedulePost() {
-        const startDate = new Date(document.getElementById('start-date').value).getTime();
-        const endDate = new Date(document.getElementById('end-date').value).getTime();
+    function schedulePost(startDate, endDate, imageUrl, imageName) {
         const now = Date.now();
+        const startTime = new Date(startDate).getTime();
+        const endTime = new Date(endDate).getTime();
 
-        if (startDate > now) {
+        if (startTime > now) {
             alert('As imagens serão exibidas a partir do dia selecionado.');
         }
 
-        if (endDate <= now) {
+        if (endTime <= now) {
             alert('O período de exibição já terminou. As imagens serão excluídas.');
-            deleteAllImages();
+            deleteScheduledPost(imageName);
             return;
         }
 
+        // Adiciona à lista de posts programados
+        const div = document.createElement('div');
+        div.className = 'scheduled-post-item';
+        div.dataset.name = imageName;
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.onclick = () => deleteScheduledPost(imageName);
+        div.appendChild(img);
+        div.appendChild(deleteBtn);
+        scheduledPostsList.appendChild(div);
+        scheduledPosts.push({ name: imageName, url: imageUrl });
+
+        // Remove automaticamente após o término do período
         setTimeout(() => {
-            alert('As imagens foram removidas automaticamente após o término do período.');
-            deleteAllImages();
-        }, endDate - now);
+            deleteScheduledPost(imageName);
+            alert('A imagem foi removida automaticamente após o término do período.');
+        }, endTime - now);
     }
 
-    function initSortable() {
-        Sortable.create(imageList, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            onEnd: (evt) => {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                const movedImage = images.splice(oldIndex, 1)[0];
-                images.splice(newIndex, 0, movedImage);
-            }
+    function deleteScheduledPost(name) {
+        const storageRef = storage.ref(`images/${name}`);
+        storageRef.delete().then(() => {
+            const div = document.querySelector(`.scheduled-post-item[data-name="${name}"]`);
+            if (div) div.remove();
+            scheduledPosts = scheduledPosts.filter(post => post.name !== name);
+        }).catch((error) => {
+            console.error('Erro ao excluir imagem programada:', error);
         });
     }
 
