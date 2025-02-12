@@ -343,18 +343,38 @@
     function deleteAllImages() {
         if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
 
-        [...images, ...scheduledImages].forEach(img => {
+        const allImages = [...images, ...scheduledImages];
+        if (allImages.length === 0) {
+            alert('Não há imagens para excluir.');
+            return;
+        }
+
+        let deletedCount = 0;
+        let errorCount = 0;
+
+        allImages.forEach(img => {
             const storageRef = storage.ref(`images/${img.name}`);
-            storageRef.delete().catch((error) => {
-                console.error('Erro ao excluir imagem:', error);
+            storageRef.delete().then(() => {
+                deletedCount++;
+                updateUIAfterDeletion(img.name);
+            }).catch((error) => {
+                console.error(`Erro ao excluir imagem "${img.name}":`, error);
+                errorCount++;
             });
         });
 
-        imageList.innerHTML = '';
-        scheduledPostsList.innerHTML = '';
-        images = [];
-        scheduledImages = [];
-        alert('Todas as imagens foram excluídas!');
+        // Função para atualizar a interface após exclusão
+        function updateUIAfterDeletion(name) {
+            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
+            if (div) div.remove();
+
+            images = images.filter(img => img.name !== name);
+            scheduledImages = scheduledImages.filter(img => img.name !== name);
+
+            if (deletedCount + errorCount === allImages.length) {
+                alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
+            }
+        }
     }
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
