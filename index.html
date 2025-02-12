@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uploads e Gerenciamento de Imagens</title>
+    <title>Upload e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -321,32 +321,40 @@
 
     function deleteImage(name, listElement) {
         if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
             const div = document.querySelector(`.image-item[data-name="${name}"]`);
             if (div) div.remove();
+
             if (listElement === imageList) {
                 images = images.filter(img => img.name !== name);
             } else if (listElement === scheduledPostsList) {
                 scheduledImages = scheduledImages.filter(img => img.name !== name);
             }
+
+            alert(`Imagem "${name}" excluída com sucesso!`);
         }).catch((error) => {
             console.error('Erro ao excluir imagem:', error);
+            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
         });
     }
 
     function deleteAllImages() {
         if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
+
         [...images, ...scheduledImages].forEach(img => {
             const storageRef = storage.ref(`images/${img.name}`);
             storageRef.delete().catch((error) => {
                 console.error('Erro ao excluir imagem:', error);
             });
         });
+
         imageList.innerHTML = '';
         scheduledPostsList.innerHTML = '';
         images = [];
         scheduledImages = [];
+        alert('Todas as imagens foram excluídas!');
     }
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -488,8 +496,10 @@
             const div = document.querySelector(`.scheduled-post-item[data-name="${name}"]`);
             if (div) div.remove();
             scheduledImages = scheduledImages.filter(post => post.name !== name);
+            alert(`Imagem "${name}" excluída com sucesso!`);
         }).catch((error) => {
             console.error('Erro ao excluir imagem programada:', error);
+            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
         });
     }
 
