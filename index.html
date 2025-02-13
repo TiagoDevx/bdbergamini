@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload e Gerenciamento de Imagens</title>
+    <title>Uploads e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,13 +108,13 @@
         .action-buttons .schedule:hover {
             background-color: #ff6347;
         }
-        .image-list, .scheduled-posts-list {
+        .image-list, .scheduled-posts-list, .history-list {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 20px;
         }
-        .image-item, .scheduled-post-item {
+        .image-item, .scheduled-post-item, .history-item {
             position: relative;
             width: 80px; /* Tamanho padrão */
             height: 80px; /* Tamanho padrão */
@@ -124,12 +124,12 @@
             background-color: #fff;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
         }
-        .image-item img, .scheduled-post-item img {
+        .image-item img, .scheduled-post-item img, .history-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .image-item .delete-btn, .scheduled-post-item .delete-btn {
+        .image-item .delete-btn, .scheduled-post-item .delete-btn, .history-item .delete-btn {
             position: absolute;
             top: 5px;
             right: 5px;
@@ -145,7 +145,7 @@
             justify-content: center;
             font-size: 10px; /* Ícone menor */
         }
-        .scheduled-section {
+        .scheduled-section, .history-section {
             margin-top: 20px;
             padding: 20px;
             background-color: #fffaf0;
@@ -153,7 +153,7 @@
             border-radius: 8px;
             display: none;
         }
-        .scheduled-section h3 {
+        .scheduled-section h3, .history-section h3 {
             margin-bottom: 15px;
             color: #ff7f50;
         }
@@ -193,7 +193,7 @@
         .delete-all-btn:hover {
             background-color: #b22222;
         }
-        .scheduled-post-item .period-label {
+        .scheduled-post-item .period-label, .history-item .period-label {
             position: absolute;
             bottom: 5px;
             left: 5px;
@@ -264,6 +264,11 @@
         </div>
         <div class="scheduled-posts-list" id="scheduled-posts-list"></div>
     </div>
+    <!-- Histórico de Imagens Programadas -->
+    <div class="history-section" id="history-section">
+        <h3>Histórico de Imagens Programadas</h3>
+        <div class="history-list" id="history-list"></div>
+    </div>
     <button class="delete-all-btn" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
 </div>
 
@@ -295,6 +300,7 @@
     const scheduledFileElem = document.getElementById('scheduled-fileElem');
     const imageList = document.getElementById('image-list');
     const scheduledPostsList = document.getElementById('scheduled-posts-list');
+    const historyList = document.getElementById('history-list');
     let scheduledImages = [];
 
     // Função para sanitizar nomes de arquivos
@@ -325,16 +331,8 @@
     function startClock() {
         const clockElement = document.getElementById('clock');
         setInterval(() => {
-            fetch('https://worldtimeapi.org/api/timezone/America/Sao_Paulo')
-                .then(response => response.json())
-                .then(data => {
-                    const datetime = new Date(data.datetime);
-                    clockElement.textContent = `Relógio: ${datetime.toLocaleString()}`;
-                })
-                .catch(error => {
-                    console.error('Erro ao obter horário da internet:', error);
-                    clockElement.textContent = 'Relógio: Erro ao carregar horário.';
-                });
+            const datetime = new Date();
+            clockElement.textContent = `Relógio: ${datetime.toLocaleString()}`;
         }, 1000);
     }
 
@@ -377,11 +375,10 @@
 
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
-            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
+            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"], .history-item[data-name="${name}"]`);
             if (div) div.remove();
 
-            if (listElement === scheduledPostsList) {
-                scheduledImages = scheduledImages.filter(img => img.name !== name);
+            if (listElement === scheduledPostsList || listElement === historyList) {
                 removeScheduledImageFromDatabase(name);
             }
 
@@ -410,8 +407,7 @@
 
     ['dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-        scheduledDropArea.addEventListener
-                scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.remove('highlight'), false);
+        scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.remove('highlight'), false);
     });
 
     dropArea.addEventListener('drop', handleDrop, false);
@@ -638,6 +634,24 @@
                 div.appendChild(periodLabel);
                 scheduledPostsList.appendChild(div);
 
+                // Adiciona a imagem ao histórico
+                const historyDiv = document.createElement('div');
+                historyDiv.className = 'history-item';
+                historyDiv.dataset.name = name;
+                const historyImg = document.createElement('img');
+                historyImg.src = img.src;
+                const historyDeleteBtn = document.createElement('button');
+                historyDeleteBtn.className = 'delete-btn';
+                historyDeleteBtn.innerHTML = '&times;';
+                historyDeleteBtn.onclick = () => deleteImage(name, historyList);
+                const historyPeriodLabel = document.createElement('div');
+                historyPeriodLabel.className = 'period-label';
+                historyPeriodLabel.textContent = `${startDateTimeObj.toLocaleString()} - ${endDateTimeObj.toLocaleString()}`;
+                historyDiv.appendChild(historyImg);
+                historyDiv.appendChild(historyDeleteBtn);
+                historyDiv.appendChild(historyPeriodLabel);
+                historyList.appendChild(historyDiv);
+
                 // Agenda para exibir a imagem no futuro
                 const startTimeMs = startDateTimeObj.getTime();
                 const endTimeMs = endDateTimeObj.getTime();
@@ -650,8 +664,7 @@
                         alert(`A imagem "${name}" foi vinculada automaticamente.`);
                     }, timeUntilStart);
                 }
-
-                // Remove automaticamente após o término do período
+                                // Remove automaticamente após o término do período
                 const timeUntilEnd = endTimeMs - Date.now();
                 if (timeUntilEnd > 0) {
                     console.log(`Agendando remoção da imagem "${name}" em ${timeUntilEnd}ms.`);
@@ -661,6 +674,11 @@
                     }, timeUntilEnd);
                 }
             }
+
+            // Exibe a seção de histórico se houver imagens programadas
+            if (historyList.children.length > 0) {
+                document.getElementById('history-section').style.display = 'block';
+            }
         }).catch((error) => {
             console.error('Erro ao carregar imagens agendadas:', error);
         });
@@ -669,9 +687,8 @@
     function deleteScheduledPost(name) {
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
-            const div = document.querySelector(`.scheduled-post-item[data-name="${name}"]`);
+            const div = document.querySelector(`.scheduled-post-item[data-name="${name}"], .history-item[data-name="${name}"]`);
             if (div) div.remove();
-            scheduledImages = scheduledImages.filter(post => post.name !== name);
             removeScheduledImageFromDatabase(name);
             alert(`Imagem "${name}" excluída com sucesso!`);
         }).catch((error) => {
@@ -687,7 +704,7 @@
     function deleteAllImages() {
         if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
 
-        const allImages = [...document.querySelectorAll('.image-item, .scheduled-post-item')];
+        const allImages = [...document.querySelectorAll('.image-item, .scheduled-post-item, .history-item')];
         if (allImages.length === 0) {
             alert('Não há imagens para excluir.');
             return;
@@ -713,7 +730,21 @@
                 }
             });
         });
+
+        // Limpa todos os agendamentos do banco de dados
+        database.ref('scheduledImages').remove().then(() => {
+            console.log('Todos os agendamentos foram removidos do banco de dados.');
+        }).catch((error) => {
+            console.error('Erro ao limpar agendamentos do banco de dados:', error);
+        });
     }
+
+    // Carrega as imagens ao iniciar a página
+    window.onload = () => {
+        loadImages();
+        loadScheduledImages();
+        startClock();
+    };
 </script>
 </body>
 </html>
