@@ -410,7 +410,8 @@
 
     ['dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-        scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.remove('highlight'), false);
+        scheduledDropArea.addEventListener
+                scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.remove('highlight'), false);
     });
 
     dropArea.addEventListener('drop', handleDrop, false);
@@ -622,8 +623,8 @@
                 // Adiciona a imagem à lista de posts programados
                 const div = document.createElement('div');
                 div.className = 'scheduled-post-item';
-                div.dataset.name = name
-                                const img = document.createElement('img');
+                div.dataset.name = name;
+                const img = document.createElement('img');
                 img.src = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/images%2F${encodeURIComponent(name)}?alt=media`;
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
@@ -642,17 +643,23 @@
                 const endTimeMs = endDateTimeObj.getTime();
 
                 if (startTimeMs > Date.now()) {
+                    const timeUntilStart = startTimeMs - Date.now();
+                    console.log(`Agendando imagem "${name}" para vinculação em ${timeUntilStart}ms.`);
                     setTimeout(() => {
                         addImageToList(img.src, name, imageList);
                         alert(`A imagem "${name}" foi vinculada automaticamente.`);
-                    }, startTimeMs - Date.now());
+                    }, timeUntilStart);
                 }
 
                 // Remove automaticamente após o término do período
-                setTimeout(() => {
-                    deleteScheduledPost(name);
-                    alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
-                }, endTimeMs - Date.now());
+                const timeUntilEnd = endTimeMs - Date.now();
+                if (timeUntilEnd > 0) {
+                    console.log(`Agendando remoção da imagem "${name}" em ${timeUntilEnd}ms.`);
+                    setTimeout(() => {
+                        deleteScheduledPost(name);
+                        alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
+                    }, timeUntilEnd);
+                }
             }
         }).catch((error) => {
             console.error('Erro ao carregar imagens agendadas:', error);
