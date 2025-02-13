@@ -276,8 +276,8 @@
     const PASSWORD = "MarketingLoja010401@";
 
     function login() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
 
         if (username === USERNAME && password === PASSWORD) {
             document.querySelector('.login-container').style.display = 'none';
@@ -303,7 +303,8 @@
     const app = firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
     const database = firebase.database();
-    const dropArea = document.getElementById('drop-area');
+    const dropArea = document.getElementById
+        const dropArea = document.getElementById('drop-area');
     const scheduledDropArea = document.getElementById('scheduled-drop-area');
     const fileElem = document.getElementById('fileElem');
     const scheduledFileElem = document.getElementById('scheduled-fileElem');
@@ -361,7 +362,9 @@
         div.appendChild(deleteBtn);
         listElement.appendChild(div);
         return { name, url };
-            function deleteImage(name, listElement) {
+    }
+
+    function deleteImage(name, listElement) {
         if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
 
         const storageRef = storage.ref(`images/${name}`);
