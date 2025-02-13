@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload e Gerenciamento de Imagens</title>
+    <title>Uploads e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -479,6 +479,11 @@
             return;
         }
 
+        if (scheduledImages.length === 0) {
+            alert('Nenhuma imagem foi selecionada para agendamento.');
+            return;
+        }
+
         scheduledImages.forEach(image => {
             const startTimeMs = startDateTime.getTime();
             const endTimeMs = endDateTime.getTime();
@@ -520,6 +525,7 @@
         });
 
         alert('Imagens agendadas com sucesso!');
+        scheduledImages = []; // Limpa a lista de imagens agendadas
     }
 
     function uploadScheduledImage(name, base64) {
