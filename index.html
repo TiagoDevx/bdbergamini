@@ -3,88 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload e Gerenciamento de Imagens</title>
+    <title>Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
-            padding: 20px;
             margin: 0;
+            padding: 0;
         }
         .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #ff7f50;
+            background: linear-gradient(135deg, #ff7f50, #ff6347);
         }
         .login-box {
             background: #fff;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             width: 350px;
             text-align: center;
         }
         .login-box h2 {
-            margin-bottom: 20px;
             color: #ff7f50;
+            margin-bottom: 20px;
         }
         .login-box input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 16px;
         }
         .login-box button {
             width: 100%;
-            padding: 10px;
-            background-color: #ff7f50;
+            padding: 12px;
+            background: #ff7f50;
             color: white;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
         .login-box button:hover {
-            background-color: #ff6347;
+            background: #ff6347;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 1000px;
+            margin: 20px auto;
             background: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        #drop-area {
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #ff7f50;
+        }
+        .clock {
+            font-size: 18px;
+            color: #ff7f50;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #ff7f50;
+            margin-bottom: 15px;
+        }
+        .upload-area {
             border: 2px dashed #ff7f50;
             padding: 20px;
             text-align: center;
             margin-bottom: 20px;
+            border-radius: 10px;
             cursor: pointer;
-            background-color: #fffaf0;
+            background: #fffaf0;
+            transition: border-color 0.3s ease;
         }
-        #drop-area.highlight {
+        .upload-area:hover {
             border-color: #ff6347;
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        .upload-area label {
+            background: #ff7f50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .upload-area label:hover {
+            background: #ff6347;
         }
         .image-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
         .image-item {
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
+            border: 2px solid #ff7f50;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .image-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
         }
         .image-item .delete-btn {
             position: absolute;
@@ -94,39 +135,117 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 14px;
         }
-        .sortable-ghost {
-            opacity: 0.5;
-        }
-        .progress-bar-container {
-            margin-top: 10px;
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            width: 0%;
-            height: 10px;
-            background-color: #ff7f50;
-        }
-        .delete-all-btn {
-            background-color: #ff6347;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+        .action-buttons {
+            display: flex;
+            gap: 15px;
             margin-top: 20px;
         }
-        .delete-all-btn:hover {
-            background-color: #ff4500;
+        .action-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .action-buttons .schedule {
+            background: #ff7f50;
+            color: white;
+        }
+        .action-buttons .schedule:hover {
+            background: #ff6347;
+        }
+        .action-buttons .history {
+            background: #4CAF50;
+            color: white;
+        }
+        .action-buttons .history:hover {
+            background: #45a049;
+        }
+        .action-buttons .delete-all {
+            background: #f44336;
+            color: white;
+        }
+        .action-buttons .delete-all:hover {
+            background: #d32f2f;
+        }
+        .scheduled-section {
+            margin-top: 30px;
+        }
+        .scheduled-section h3 {
+            color: #ff7f50;
+            margin-bottom: 15px;
+        }
+        .scheduled-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .scheduled-item img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        .scheduled-item .info {
+            flex: 1;
+        }
+        .scheduled-item .period {
+            font-size: 14px;
+            color: #555;
+        }
+        .scheduled-item .delete-btn {
+            background: #ff6347;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .history-section {
+            margin-top: 30px;
+        }
+        .history-section h3 {
+            color: #ff7f50;
+            margin-bottom: 15px;
+        }
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .history-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        .history-item .info {
+            flex: 1;
+        }
+        .history-item .delete-btn {
+            background: #ff6347;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -136,46 +255,52 @@
         <h2>Login</h2>
         <input type="text" id="username" placeholder="Usuário">
         <input type="password" id="password" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
+        <button id="login-button">Entrar</button>
     </div>
 </div>
 
 <div class="container">
-    <h1>Gerenciamento de Imagens</h1>
-    <!-- Área de Upload -->
-    <div id="drop-area">
-        <p>Arraste e solte suas imagens aqui</p>
-        <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
-        <label class="button" for="fileElem">Selecione arquivos</label>
+    <div class="header">
+        <h1>Gerenciamento de Imagens</h1>
+        <div class="clock" id="clock">Carregando...</div>
     </div>
-    <div class="progress-bar-container">
-        <div class="progress-bar" id="progress-bar"></div>
+
+    <!-- Seção de Upload -->
+    <div class="section">
+        <h2>Vincular Agora</h2>
+        <div class="upload-area" id="upload-area">
+            <p>Arraste e solte suas imagens aqui ou</p>
+            <label for="fileElem">Selecione arquivos</label>
+            <input type="file" id="fileElem" multiple accept="image/*">
+        </div>
+        <div class="image-list" id="image-list"></div>
     </div>
-    <!-- Lista de Imagens -->
-    <div class="image-list" id="image-list"></div>
-    <button class="delete-all-btn" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
+
+    <!-- Botões de Ação -->
+    <div class="action-buttons">
+        <button class="schedule" onclick="showScheduledSection()">Agendar Post</button>
+        <button class="history" onclick="showHistory()">Histórico</button>
+        <button class="delete-all" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
+    </div>
+
+    <!-- Seção de Agendamento -->
+    <div class="scheduled-section" id="scheduled-section" style="display: none;">
+        <h3>Imagens Agendadas</h3>
+        <div class="scheduled-list" id="scheduled-list"></div>
+    </div>
+
+    <!-- Histórico -->
+    <div class="history-section" id="history-section" style="display: none;">
+        <h3>Histórico</h3>
+        <div class="history-list" id="history-list"></div>
+    </div>
 </div>
 
 <!-- Bibliotecas -->
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
 <script>
-    const USERNAME = "MarketingBergamini";
-    const PASSWORD = "MarketingLoja010401@";
-
-    function login() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        if (username === USERNAME && password === PASSWORD) {
-            document.querySelector('.login-container').style.display = 'none';
-            document.querySelector('.container').style.display = 'block';
-        } else {
-            alert('Usuário ou senha incorretos!');
-        }
-    }
-
     // Configuração do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyAPcnUH5oj0krqEBcKFkRxg6h7GWiOiGWs",
@@ -188,17 +313,55 @@
     };
     const app = firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
-    const dropArea = document.getElementById('drop-area');
-    const fileElem = document.getElementById('fileElem');
-    const imageList = document.getElementById('image-list');
-    let images = [];
+    const database = firebase.database();
 
+    // Variáveis globais
+    const USERNAME = "MarketingBergamini";
+    const PASSWORD = "MarketingLoja010401@";
+    const imageList = document.getElementById('image-list');
+    const scheduledList = document.getElementById('scheduled-list');
+    const historyList = document.getElementById('history-list');
+
+    let currentNumber = 1; // Contador para imagens numeradas
+    let currentLetter = 'a'; // Contador para imagens com letras
+
+    // Função de Login
+    function login() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (username === USERNAME && password === PASSWORD) {
+            document.querySelector('.login-container').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+            loadImages();
+            startClock();
+            startScheduledImageCheck();
+        } else {
+            alert('Usuário ou senha incorretos!');
+        }
+    }
+
+    document.getElementById('login-button').addEventListener('click', login);
+
+    // Função para iniciar o relógio
+    function startClock() {
+        const clockElement = document.getElementById('clock');
+        setInterval(() => {
+            const datetime = new Date();
+            clockElement.textContent = `Relógio: ${datetime.toLocaleString()}`;
+        }, 1000);
+    }
+
+    // Função para carregar imagens
     function loadImages() {
         const storageRef = storage.ref('images/');
         storageRef.listAll().then((res) => {
             res.items.forEach((itemRef) => {
                 itemRef.getDownloadURL().then((url) => {
-                    addImageToList(url, itemRef.name);
+                    const name = itemRef.name;
+                    if (isNumeric(name.split('.')[0])) {
+                        addImageToList(url, name);
+                    }
                 }).catch((error) => {
                     console.error('Erro ao obter URL da imagem:', error);
                 });
@@ -208,6 +371,12 @@
         });
     }
 
+    // Função para verificar se um nome é numérico
+    function isNumeric(str) {
+        return /^\d+$/.test(str);
+    }
+
+    // Função para adicionar imagens à lista
     function addImageToList(url, name) {
         const div = document.createElement('div');
         div.className = 'image-item';
@@ -221,105 +390,270 @@
         div.appendChild(img);
         div.appendChild(deleteBtn);
         imageList.appendChild(div);
-        images.push({ name, url });
-        initSortable();
     }
 
+    // Função para excluir uma imagem
     function deleteImage(name) {
         if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
             const div = document.querySelector(`.image-item[data-name="${name}"]`);
             if (div) div.remove();
-            images = images.filter(img => img.name !== name);
+            alert(`Imagem "${name}" excluída com sucesso!`);
         }).catch((error) => {
             console.error('Erro ao excluir imagem:', error);
+            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
         });
     }
 
+    // Função para agendar imagens
+    function showScheduledSection() {
+        const files = document.getElementById('fileElem').files;
+        if (files.length === 0) {
+            alert('Selecione pelo menos uma imagem para agendar.');
+            return;
+        }
+
+        const startDate = prompt('Digite a data de início (YYYY-MM-DD):');
+        const startTime = prompt('Digite a hora de início (HH:mm):');
+        const endDate = prompt('Digite a data de término (YYYY-MM-DD):');
+        const endTime = prompt('Digite a hora de término (HH:mm):');
+
+        if (!startDate || !startTime || !endDate || !endTime) {
+            alert('Preencha todos os campos de data e hora.');
+            return;
+        }
+
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+
+        if (startDateTime > endDateTime) {
+            alert('A data/hora de início não pode ser maior que a data/hora de término.');
+            return;
+        }
+
+        [...files].forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64String = event.target.result.split(',')[1];
+                const newName = `${currentLetter}.jpg`;
+                currentLetter = String.fromCharCode(currentLetter.charCodeAt(0) + 1);
+
+                // Salva no Firebase Realtime Database
+                const scheduledRef = database.ref('scheduledImages/' + newName);
+                scheduledRef.set({
+                    name: newName,
+                    originalName: file.name,
+                    startDateTime: startDateTime.toISOString(),
+                    endDateTime: endDateTime.toISOString(),
+                    base64: base64String
+                }).then(() => {
+                    alert(`Imagem "${newName}" agendada com sucesso!`);
+                    loadScheduledImages();
+                }).catch((error) => {
+                    console.error('Erro ao salvar agendamento:', error);
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Função para carregar imagens agendadas
+    function loadScheduledImages() {
+        scheduledList.innerHTML = '';
+        const scheduledRef = database.ref('scheduledImages');
+        scheduledRef.once('value').then((snapshot) => {
+            const scheduledData = snapshot.val();
+            if (!scheduledData) return;
+
+            for (const [key, data] of Object.entries(scheduledData)) {
+                const { name, startDateTime, endDateTime, base64 } = data;
+                const startMs = new Date(startDateTime).getTime();
+                const endMs = new Date(endDateTime).getTime();
+
+                const div = document.createElement('div');
+                div.className = 'scheduled-item';
+                div.innerHTML = `
+                    <img src="data:image/jpeg;base64,${base64}" alt="${name}">
+                    <div class="info">
+                        <div>${name}</div>
+                        <div class="period">${new Date(startMs).toLocaleString()} - ${new Date(endMs).toLocaleString()}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteScheduledPost('${key}', '${name}')">Excluir</button>
+                `;
+                scheduledList.appendChild(div);
+            }
+        }).catch((error) => {
+            console.error('Erro ao carregar imagens agendadas:', error);
+        });
+    }
+
+    // Função para remover um agendamento
+    function deleteScheduledPost(key, name) {
+        const scheduledRef = database.ref('scheduledImages/' + key);
+        scheduledRef.remove().then(() => {
+            alert(`Imagem "${name}" removida do agendamento.`);
+            loadScheduledImages();
+        }).catch((error) => {
+            console.error('Erro ao remover agendamento:', error);
+        });
+    }
+
+    // Função para verificar imagens agendadas
+    function checkScheduledImages() {
+        const now = Date.now();
+        const scheduledRef = database.ref('scheduledImages');
+        scheduledRef.once('value').then((snapshot) => {
+            const scheduledData = snapshot.val();
+            if (!scheduledData) return;
+
+            for (const [key, data] of Object.entries(scheduledData)) {
+                const { name, startDateTime, endDateTime, base64 } = data;
+                const startMs = new Date(startDateTime).getTime();
+                const endMs = new Date(endDateTime).getTime();
+
+                if (startMs <= now && endMs > now) {
+                    // Converte para número e exibe
+                    const numericName = `${currentNumber}.jpg`;
+                    currentNumber++;
+
+                    const storageRef = storage.ref(`images/${numericName}`);
+                    storageRef.putString(base64, 'base64').then
+                                        const storageRef = storage.ref(`images/${numericName}`);
+                    storageRef.putString(base64, 'base64').then(() => {
+                        // Atualiza o nome no Firebase Realtime Database
+                        const scheduledRef = database.ref('scheduledImages/' + key);
+                        scheduledRef.update({
+                            name: numericName,
+                            isConverted: true
+                        }).then(() => {
+                            alert(`Imagem "${name}" convertida para "${numericName}" e vinculada.`);
+                            loadImages(); // Atualiza a lista de imagens vinculadas
+                            loadScheduledImages(); // Atualiza a lista de imagens agendadas
+                        }).catch((error) => {
+                            console.error('Erro ao atualizar nome no banco de dados:', error);
+                        });
+                    }).catch((error) => {
+                        console.error('Erro ao salvar imagem convertida no Storage:', error);
+                    });
+                }
+
+                if (endMs <= now) {
+                    // Converte de volta para letra após o término do período
+                    const letterName = `${String.fromCharCode(currentLetter.charCodeAt(0) - 1)}.jpg`;
+                    currentLetter = String.fromCharCode(currentLetter.charCodeAt(0) - 1);
+
+                    const storageRef = storage.ref(`images/${letterName}`);
+                    storageRef.putString(base64, 'base64').then(() => {
+                        // Atualiza o nome no Firebase Realtime Database
+                        const scheduledRef = database.ref('scheduledImages/' + key);
+                        scheduledRef.update({
+                            name: letterName,
+                            isConverted: false
+                        }).then(() => {
+                            alert(`Imagem "${name}" convertida de volta para "${letterName}".`);
+                            loadImages(); // Atualiza a lista de imagens vinculadas
+                            loadScheduledImages(); // Atualiza a lista de imagens agendadas
+                        }).catch((error) => {
+                            console.error('Erro ao atualizar nome no banco de dados:', error);
+                        });
+                    }).catch((error) => {
+                        console.error('Erro ao salvar imagem convertida no Storage:', error);
+                    });
+                }
+            }
+        }).catch((error) => {
+            console.error('Erro ao verificar imagens agendadas:', error);
+        });
+    }
+
+    // Função para iniciar a verificação automática
+    function startScheduledImageCheck() {
+        setInterval(checkScheduledImages, 60000); // Verifica a cada 1 minuto
+    }
+
+    // Função para mostrar o histórico
+    function showHistory() {
+        historyList.innerHTML = '';
+        const historyRef = database.ref('history');
+        historyRef.once('value').then((snapshot) => {
+            const historyData = snapshot.val();
+            if (!historyData) return;
+
+            for (const [key, data] of Object.entries(historyData)) {
+                const { action, imageName, timestamp } = data;
+
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <img src="https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/images%2F${encodeURIComponent(imageName)}?alt=media" alt="${imageName}">
+                    <div class="info">
+                        <div>${action}</div>
+                        <div>${new Date(timestamp).toLocaleString()}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteHistory('${key}')">Excluir</button>
+                `;
+                historyList.appendChild(div);
+            }
+        }).catch((error) => {
+            console.error('Erro ao carregar histórico:', error);
+        });
+
+        document.getElementById('history-section').style.display = 'block';
+    }
+
+    // Função para adicionar um registro ao histórico
+    function addToHistory(action, imageName) {
+        const historyRef = database.ref('history').push();
+        historyRef.set({
+            action: action,
+            imageName: imageName,
+            timestamp: Date.now()
+        }).catch((error) => {
+            console.error('Erro ao salvar no histórico:', error);
+        });
+    }
+
+    // Função para excluir um registro do histórico
+    function deleteHistory(key) {
+        const historyRef = database.ref('history/' + key);
+        historyRef.remove().then(() => {
+            alert('Registro excluído do histórico.');
+            showHistory(); // Atualiza a lista de histórico
+        }).catch((error) => {
+            console.error('Erro ao excluir registro do histórico:', error);
+        });
+    }
+
+    // Função para apagar todas as imagens
     function deleteAllImages() {
         if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
-        images.forEach(img => {
-            const storageRef = storage.ref(`images/${img.name}`);
-            storageRef.delete().catch((error) => {
-                console.error('Erro ao excluir imagem:', error);
-            });
-        });
-        imageList.innerHTML = '';
-        images = [];
-    }
 
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-    });
-
-    dropArea.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        if (!confirm('Deseja realmente inserir estas imagens?')) return;
-        handleFiles(files);
-    }
-
-    fileElem.addEventListener('change', () => {
-        if (!confirm('Deseja realmente inserir estas imagens?')) return;
-        handleFiles(fileElem.files);
-    });
-
-    function handleFiles(files) {
-        [...files].forEach(uploadFile);
-    }
-
-    function uploadFile(file) {
-        const storageRef = storage.ref(`images/${file.name}`);
-        const uploadTask = storageRef.put(file);
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                document.getElementById('progress-bar').style.width = `${progress}%`;
-            },
-            (error) => {
-                console.error('Erro ao fazer upload:', error);
-                alert('Erro ao carregar imagem.');
-            },
-            () => {
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    addImageToList(downloadURL, file.name);
-                    document.getElementById('progress-bar').style.width = '0%';
-                    alert('Imagem carregada com sucesso!');
+        const storageRef = storage.ref('images/');
+        storageRef.listAll().then((res) => {
+            res.items.forEach((itemRef) => {
+                itemRef.delete().catch((error) => {
+                    console.error('Erro ao excluir imagem:', error);
                 });
-            }
-        );
-    }
+            });
+        }).catch((error) => {
+            console.error('Erro ao listar imagens:', error);
+        });
 
-    function initSortable() {
-        Sortable.create(imageList, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            onEnd: (evt) => {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                const movedImage = images.splice(oldIndex, 1)[0];
-                images.splice(newIndex, 0, movedImage);
-            }
+        database.ref('scheduledImages').remove().then(() => {
+            database.ref('history').remove().then(() => {
+                alert('Todas as imagens, agendamentos e histórico foram removidos.');
+                imageList.innerHTML = '';
+                scheduledList.innerHTML = '';
+                historyList.innerHTML = '';
+            }).catch((error) => {
+                console.error('Erro ao limpar histórico:', error);
+            });
+        }).catch((error) => {
+            console.error('Erro ao limpar agendamentos:', error);
         });
     }
-
-    loadImages();
 </script>
 </body>
 </html>
