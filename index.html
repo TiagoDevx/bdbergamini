@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uploads e Gerenciamento de Imagens</title>
+    <title>Upload e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -493,8 +493,7 @@
             alert('Por favor, preencha todos os campos de data e hora.');
             return;
         }
-
-        const startDateTime = new Date(`${startDate}T${startTime}`);
+                const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
 
         if (startDateTime > endDateTime) {
@@ -531,6 +530,24 @@
             div.appendChild(deleteBtn);
             div.appendChild(periodLabel);
             scheduledPostsList.appendChild(div);
+
+            // Adiciona a imagem ao histórico
+            const historyDiv = document.createElement('div');
+            historyDiv.className = 'history-item';
+            historyDiv.dataset.name = image.name;
+            const historyImg = document.createElement('img');
+            historyImg.src = img.src;
+            const historyDeleteBtn = document.createElement('button');
+            historyDeleteBtn.className = 'delete-btn';
+            historyDeleteBtn.innerHTML = '&times;';
+            historyDeleteBtn.onclick = () => deleteImage(image.name, historyList);
+            const historyPeriodLabel = document.createElement('div');
+            historyPeriodLabel.className = 'period-label';
+            historyPeriodLabel.textContent = `${startDateTime.toLocaleString()} - ${endDateTime.toLocaleString()}`;
+            historyDiv.appendChild(historyImg);
+            historyDiv.appendChild(historyDeleteBtn);
+            historyDiv.appendChild(historyPeriodLabel);
+            historyList.appendChild(historyDiv);
 
             // Agenda para enviar a imagem ao Firebase Storage no horário programado
             setTimeout(() => {
@@ -664,7 +681,8 @@
                         alert(`A imagem "${name}" foi vinculada automaticamente.`);
                     }, timeUntilStart);
                 }
-                                // Remove automaticamente após o término do período
+
+                // Remove automaticamente após o término do período
                 const timeUntilEnd = endTimeMs - Date.now();
                 if (timeUntilEnd > 0) {
                     console.log(`Agendando remoção da imagem "${name}" em ${timeUntilEnd}ms.`);
