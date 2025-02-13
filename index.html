@@ -203,6 +203,13 @@
             padding: 2px 5px;
             border-radius: 5px;
         }
+        .clock {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff7f50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -217,6 +224,7 @@
 
 <div class="container">
     <h1>Gerenciamento de Imagens</h1>
+    <div class="clock" id="clock">Carregando...</div>
     <!-- Área de Upload (Vincular Agora) -->
     <div>
         <h2>Vincular Agora</h2>
@@ -276,6 +284,7 @@
             document.querySelector('.container').style.display = 'block';
             loadImages();
             loadScheduledImages();
+            startClock();
         } else {
             alert('Usuário ou senha incorretos!');
         }
@@ -302,6 +311,14 @@
     const scheduledPostsList = document.getElementById('scheduled-posts-list');
     let images = [];
     let scheduledImages = [];
+
+    function startClock() {
+        const clockElement = document.getElementById('clock');
+        setInterval(() => {
+            const now = new Date();
+            clockElement.textContent = `Relógio: ${now.toLocaleString()}`;
+        }, 1000);
+    }
 
     function loadImages() {
         const storageRef = storage.ref('images/');
@@ -402,8 +419,7 @@
         e.preventDefault();
         e.stopPropagation();
     }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
+        ['dragenter', 'dragover'].forEach(eventName => {
         dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
         scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.add('highlight'), false);
     });
@@ -498,16 +514,6 @@
             const endTimeMs = endDateTime.getTime();
             const nowMs = now.getTime();
 
-            if (startTimeMs > nowMs) {
-                alert(`A imagem "${image.name}" será exibida a partir de ${startDateTime.toLocaleString()}.`);
-            }
-
-            if (endTimeMs <= nowMs) {
-                alert(`O período de exibição da imagem "${image.name}" já terminou. A imagem será excluída.`);
-                deleteScheduledPost(image.name);
-                return;
-            }
-
             // Salva o agendamento no Firebase Realtime Database
             saveScheduledImageToDatabase(image.name, startDateTime, endDateTime);
 
@@ -528,6 +534,18 @@
             div.appendChild(deleteBtn);
             div.appendChild(periodLabel);
             scheduledPostsList.appendChild(div);
+
+            // Verifica se a imagem deve ser exibida agora ou mais tarde
+            if (startTimeMs <= nowMs && endTimeMs > nowMs) {
+                // Exibe a imagem imediatamente se estiver dentro do período
+                addImageToList(image.url, image.name, imageList);
+            } else if (startTimeMs > nowMs) {
+                // Agenda para exibir a imagem no futuro
+                setTimeout(() => {
+                    addImageToList(image.url, image.name, imageList);
+                    alert(`A imagem "${image.name}" foi vinculada automaticamente.`);
+                }, startTimeMs - nowMs);
+            }
 
             // Remove automaticamente após o término do período
             setTimeout(() => {
@@ -568,7 +586,7 @@
             if (!scheduledData) return;
 
             for (const [name, data] of Object.entries(scheduledData)) {
-                  const startDateTime = new Date(data.startDateTime);
+                const startDateTime = new Date(data.startDateTime);
                 const endDateTime = new Date(data.endDateTime);
                 const now = new Date();
 
@@ -597,15 +615,27 @@
                 div.appendChild(periodLabel);
                 scheduledPostsList.appendChild(div);
 
-                // Remove automaticamente após o término do período
+                // Verifica se a imagem deve ser exibida agora ou mais tarde
+                const startTimeMs = startDateTime.getTime();
                 const endTimeMs = endDateTime.getTime();
                 const nowMs = now.getTime();
-                if (endTimeMs > nowMs) {
+
+                if (startTimeMs <= nowMs && endTimeMs > nowMs) {
+                    // Exibe a imagem imediatamente se estiver dentro do período
+                    addImageToList(img.src, name, imageList);
+                } else if (startTimeMs > nowMs) {
+                    // Agenda para exibir a imagem no futuro
                     setTimeout(() => {
-                        deleteScheduledPost(name);
-                        alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
-                    }, endTimeMs - nowMs);
+                        addImageToList(img.src, name, imageList);
+                        alert(`A imagem "${name}" foi vinculada automaticamente.`);
+                    }, startTimeMs - nowMs);
                 }
+
+                // Remove automaticamente após o término do período
+                setTimeout(() => {
+                    deleteScheduledPost(name);
+                    alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
+                }, endTimeMs - nowMs);
             }
         }).catch((error) => {
             console.error('Erro ao carregar imagens agendadas:', error);
