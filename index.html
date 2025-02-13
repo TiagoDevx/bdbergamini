@@ -282,6 +282,7 @@
         if (username === USERNAME && password === PASSWORD) {
             document.querySelector('.login-container').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
+            loadImages();
             loadScheduledImages();
             startClock();
         } else {
@@ -324,6 +325,57 @@
                     clockElement.textContent = 'Relógio: Erro ao carregar horário.';
                 });
         }, 1000);
+    }
+
+    function loadImages() {
+        const storageRef = storage.ref('images/');
+        storageRef.listAll().then((res) => {
+            res.items.forEach((itemRef) => {
+                itemRef.getDownloadURL().then((url) => {
+                    addImageToList(url, itemRef.name, imageList);
+                }).catch((error) => {
+                    console.error('Erro ao obter URL da imagem:', error);
+                });
+            });
+        }).catch((error) => {
+            console.error('Erro ao listar imagens:', error);
+        });
+    }
+
+    function addImageToList(url, name, listElement) {
+        const div = document.createElement('div');
+        div.className = 'image-item';
+        div.dataset.name = name;
+        const img = document.createElement('img');
+        img.src = url;
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.onclick = () => deleteImage(name, listElement);
+        div.appendChild(img);
+        div.appendChild(deleteBtn);
+        listElement.appendChild(div);
+        return { name, url };
+    }
+
+    function deleteImage(name, listElement) {
+        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+
+        const storageRef = storage.ref(`images/${name}`);
+        storageRef.delete().then(() => {
+            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
+            if (div) div.remove();
+
+            if (listElement === scheduledPostsList) {
+                scheduledImages = scheduledImages.filter(img => img.name !== name);
+                removeScheduledImageFromDatabase(name);
+            }
+
+            alert(`Imagem "${name}" excluída com sucesso!`);
+        }).catch((error) => {
+            console.error('Erro ao excluir imagem:', error);
+            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
+        });
     }
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -408,42 +460,6 @@
         );
     }
 
-    function addImageToList(url, name, listElement) {
-        const div = document.createElement('div');
-        div.className = 'image-item';
-        div.dataset.name = name;
-        const img = document.createElement('img');
-        img.src = url;
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = () => deleteImage(name, listElement);
-        div.appendChild(img);
-        div.appendChild(deleteBtn);
-        listElement.appendChild(div);
-        return { name, url };
-    }
-
-    function deleteImage(name, listElement) {
-        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
-
-        const storageRef = storage.ref(`images/${name}`);
-        storageRef.delete().then(() => {
-            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
-            if (div) div.remove();
-
-            if (listElement === scheduledPostsList) {
-                scheduledImages = scheduledImages.filter(img => img.name !== name);
-                removeScheduledImageFromDatabase(name);
-            }
-
-            alert(`Imagem "${name}" excluída com sucesso!`);
-        }).catch((error) => {
-            console.error('Erro ao excluir imagem:', error);
-            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
-        });
-    }
-
     function scheduleImages() {
         const startDate = document.getElementById('start-date').value;
         const startTime = document.getElementById('start-time').value;
@@ -454,6 +470,7 @@
             alert('Por favor, preencha todos os campos de data e hora.');
             return;
         }
+
         const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
 
@@ -623,4 +640,3 @@
 </script>
 </body>
 </html>
-    
