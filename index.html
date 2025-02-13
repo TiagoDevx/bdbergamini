@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamentos de Imagens</title>
+    <title>Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -402,6 +402,11 @@
         previewImages('scheduled-fileElem', 'scheduled-image-preview');
     });
 
+    // Função para sanitizar nomes de arquivos
+    function sanitizeFileName(name) {
+        return name.replace(/[.#$[\]]/g, '_'); // Substitui caracteres inválidos por "_"
+    }
+
     // Função para vincular imagens agora
     function uploadImages() {
         const files = document.getElementById('fileElem').files;
@@ -414,6 +419,8 @@
         let uploadedCount = 0;
 
         [...files].forEach((file, index) => {
+            const originalName = file.name;
+            const sanitizedKey = sanitizeFileName(originalName); // Sanitiza o nome da imagem
             const newName = `${currentNumber}.jpg`;
             currentNumber++;
 
@@ -461,7 +468,8 @@
 
     // Função para excluir uma imagem
     function deleteImage(name) {
-        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+
+ if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
 
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
@@ -502,18 +510,21 @@
 
         const progressBar = document.getElementById('scheduled-progress-bar');
         let uploadedCount = 0;
-                [...files].forEach((file, index) => {
+
+        [...files].forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const base64String = event.target.result.split(',')[1];
+                const originalName = file.name;
+                const sanitizedKey = sanitizeFileName(originalName); // Sanitiza o nome da imagem
                 const newName = `${currentLetter}.jpg`;
                 currentLetter = String.fromCharCode(currentLetter.charCodeAt(0) + 1);
 
                 // Salva no Firebase Realtime Database
-                const scheduledRef = database.ref('scheduledImages/' + newName);
+                const scheduledRef = database.ref('scheduledImages/' + sanitizedKey);
                 scheduledRef.set({
                     name: newName,
-                    originalName: file.name,
+                    originalName: originalName,
                     startDateTime: startDateTime.toISOString(),
                     endDateTime: endDateTime.toISOString(),
                     base64: base64String
