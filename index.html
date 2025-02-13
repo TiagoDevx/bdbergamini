@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uploads e Gerenciamento de Imagens</title>
+    <title>Upload e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -242,6 +242,7 @@
     <div class="action-buttons">
         <button class="send-now" onclick="sendNow()">Vincular Agora</button>
         <button class="schedule" onclick="showScheduledSection()">Agendar Post</button>
+        <button class="history" onclick="showHistory()">Histórico de Agendamentos</button>
     </div>
     <!-- Seção de Agendamento -->
     <div class="scheduled-section" id="scheduled-section">
@@ -371,7 +372,7 @@
 
     // Função para excluir uma imagem
     function deleteImage(name, listElement) {
-        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+       if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
 
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
@@ -481,6 +482,12 @@
 
         // Exibe o formulário de agendamento
         scheduleForm.style.display = 'flex';
+    }
+
+    function showHistory() {
+        const historySection = document.getElementById('history-section');
+        historySection.style.display = 'block';
+        loadScheduledImages();
     }
 
     function scheduleImages() {
@@ -698,7 +705,7 @@
                 if (deletedCount + errorCount === allImages.length) {
                     alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
                 }
-            }).catch((error) => {
+            }).catch((error}).catch((error) => {
                 console.error(`Erro ao excluir imagem "${name}":`, error);
                 errorCount++;
                 if (deletedCount + errorCount === allImages.length) {
