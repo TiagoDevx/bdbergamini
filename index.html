@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload e Gerenciamento de Imagens</title>
+    <title>Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -320,6 +320,7 @@
             loadImages();
             loadScheduledImages();
             startClock();
+            startScheduledImageCheck(); // Inicia a verificação automática
         } else {
             alert('Usuário ou senha incorretos!');
         }
@@ -415,7 +416,7 @@
     scheduledDropArea.addEventListener('drop', handleScheduledDrop, false);
 
     function handleDrop(e) {
-         const dt = e.dataTransfer;
+        const dt = e.dataTransfer;
         const files = dt.files;
         handleFiles(files, imageList);
     }
@@ -722,11 +723,60 @@
         });
     }
 
-    // Carrega as imagens ao iniciar a página
+    // Função para verificar automaticamente se uma imagem deve ser vinculada ou removida
+    function checkScheduledImages() {
+        const scheduledRef = database.ref('scheduledImages');
+        scheduledRef.once('value').then((snapshot) => {
+            const scheduledData = snapshot.val();
+            if (!scheduledData) return;
+
+            const now = Date.now();
+
+            for (const [sanitizedKey, data] of Object.entries(scheduledData)) {
+                const { name, startDateTime, endDateTime } = data; // Extrai os dados
+                const startDateTimeObj = new Date(startDateTime);
+                const endDateTimeObj = new Date(endDateTime);
+
+                // Verifica se a imagem ainda está dentro do período programado
+                if (endDateTimeObj <= new Date()) {
+                    console.log(`A imagem "${name}" já expirou. Removendo do agendamento.`);
+                    removeScheduledImageFromDatabase(name);
+                    continue;
+                }
+
+                // Verifica se a imagem deve ser vinculada agora
+                const startTimeMs = startDateTimeObj.getTime();
+                const endTimeMs = endDateTimeObj.getTime();
+
+                if (startTimeMs <= now && endTimeMs > now) {
+                    // Vincula automaticamente a imagem
+                    const imgSrc = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/images%2F${encodeURIComponent(name)}?alt=media`;
+                    addImageToList(imgSrc, name, imageList);
+                    alert(`A imagem "${name}" foi vinculada automaticamente.`);
+                }
+
+                // Remove automaticamente após o término do período
+                if (endTimeMs <= now) {
+                    deleteScheduledPost(name);
+                    alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
+                }
+            }
+        }).catch((error) => {
+            console.error('Erro ao verificar imagens agendadas:', error);
+        });
+    }
+
+    // Função para iniciar a verificação automática de imagens agendadas
+    function startScheduledImageCheck() {
+        setInterval(checkScheduledImages, 60000); // Verifica a cada 1 minuto
+    }
+
+    // Carrega as imagens e inicia a verificação automática ao carregar a página
     window.onload = () => {
         loadImages();
         loadScheduledImages();
         startClock();
+        startScheduledImageCheck(); // Inicia a verificação automática
     };
 </script>
 </body>
