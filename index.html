@@ -372,7 +372,7 @@
 
     // Função para excluir uma imagem
     function deleteImage(name, listElement) {
-       if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
 
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
@@ -415,7 +415,7 @@
     scheduledDropArea.addEventListener('drop', handleScheduledDrop, false);
 
     function handleDrop(e) {
-        const dt = e.dataTransfer;
+         const dt = e.dataTransfer;
         const files = dt.files;
         handleFiles(files, imageList);
     }
@@ -705,7 +705,7 @@
                 if (deletedCount + errorCount === allImages.length) {
                     alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
                 }
-            }).catch((error}).catch((error) => {
+            }).catch((error) => {
                 console.error(`Erro ao excluir imagem "${name}":`, error);
                 errorCount++;
                 if (deletedCount + errorCount === allImages.length) {
