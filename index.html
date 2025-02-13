@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload e Gerenciamento de Imagens</title>
+    <title>Uploads e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -493,7 +493,8 @@
             alert('Por favor, preencha todos os campos de data e hora.');
             return;
         }
-                const startDateTime = new Date(`${startDate}T${startTime}`);
+
+        const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
 
         if (startDateTime > endDateTime) {
@@ -507,22 +508,21 @@
         }
 
         scheduledImages.forEach(image => {
-            const startTimeMs = startDateTime.getTime();
-            const endTimeMs = endDateTime.getTime();
+            const { name, base64 } = image;
 
             // Salva o agendamento no Firebase Realtime Database
-            saveScheduledImageToDatabase(image.name, startDateTime, endDateTime);
+            saveScheduledImageToDatabase(name, startDateTime, endDateTime);
 
             // Adiciona à lista de posts programados
             const div = document.createElement('div');
             div.className = 'scheduled-post-item';
-            div.dataset.name = image.name;
+            div.dataset.name = name;
             const img = document.createElement('img');
-            img.src = `data:image/jpeg;base64,${image.base64}`;
+            img.src = `data:image/jpeg;base64,${base64}`;
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn';
             deleteBtn.innerHTML = '&times;';
-            deleteBtn.onclick = () => deleteScheduledPost(image.name);
+            deleteBtn.onclick = () => deleteScheduledPost(name);
             const periodLabel = document.createElement('div');
             periodLabel.className = 'period-label';
             periodLabel.textContent = `${startDateTime.toLocaleString()} - ${endDateTime.toLocaleString()}`;
@@ -534,13 +534,13 @@
             // Adiciona a imagem ao histórico
             const historyDiv = document.createElement('div');
             historyDiv.className = 'history-item';
-            historyDiv.dataset.name = image.name;
+            historyDiv.dataset.name = name;
             const historyImg = document.createElement('img');
             historyImg.src = img.src;
             const historyDeleteBtn = document.createElement('button');
             historyDeleteBtn.className = 'delete-btn';
             historyDeleteBtn.innerHTML = '&times;';
-            historyDeleteBtn.onclick = () => deleteImage(image.name, historyList);
+            historyDeleteBtn.onclick = () => deleteImage(name, historyList);
             const historyPeriodLabel = document.createElement('div');
             historyPeriodLabel.className = 'period-label';
             historyPeriodLabel.textContent = `${startDateTime.toLocaleString()} - ${endDateTime.toLocaleString()}`;
@@ -548,47 +548,10 @@
             historyDiv.appendChild(historyDeleteBtn);
             historyDiv.appendChild(historyPeriodLabel);
             historyList.appendChild(historyDiv);
-
-            // Agenda para enviar a imagem ao Firebase Storage no horário programado
-            setTimeout(() => {
-                uploadScheduledImage(image.name, image.base64).then(downloadURL => {
-                    addImageToList(downloadURL, image.name, imageList);
-                    alert(`A imagem "${image.name}" foi vinculada automaticamente.`);
-                });
-            }, startTimeMs - Date.now());
-
-            // Remove automaticamente após o término do período
-            setTimeout(() => {
-                deleteScheduledPost(image.name);
-                alert(`A imagem "${image.name}" foi removida automaticamente após o término do período.`);
-            }, endTimeMs - Date.now());
         });
 
         alert('Imagens agendadas com sucesso!');
         scheduledImages = []; // Limpa a lista de imagens agendadas
-    }
-
-    function uploadScheduledImage(name, base64) {
-        return new Promise((resolve, reject) => {
-            const storageRef = storage.ref(`images/${name}`);
-            const uploadTask = storageRef.putString(base64, 'base64', { contentType: 'image/jpeg' });
-
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log(`Upload progress: ${progress}%`);
-                },
-                (error) => {
-                    console.error('Erro ao fazer upload:', error);
-                    reject(error);
-                },
-                () => {
-                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        resolve(downloadURL);
-                    });
-                }
-            );
-        });
     }
 
     function saveScheduledImageToDatabase(name, startDateTime, endDateTime) {
@@ -620,6 +583,8 @@
         scheduledRef.once('value').then((snapshot) => {
             const scheduledData = snapshot.val();
             if (!scheduledData) return;
+
+            const now = Date.now();
 
             for (const [sanitizedKey, data] of Object.entries(scheduledData)) {
                 const { name, startDateTime, endDateTime } = data; // Extrai os dados
@@ -669,27 +634,20 @@
                 historyDiv.appendChild(historyPeriodLabel);
                 historyList.appendChild(historyDiv);
 
-                // Agenda para exibir a imagem no futuro
+                // Verifica se a imagem deve ser vinculada agora
                 const startTimeMs = startDateTimeObj.getTime();
                 const endTimeMs = endDateTimeObj.getTime();
 
-                if (startTimeMs > Date.now()) {
-                    const timeUntilStart = startTimeMs - Date.now();
-                    console.log(`Agendando imagem "${name}" para vinculação em ${timeUntilStart}ms.`);
-                    setTimeout(() => {
-                        addImageToList(img.src, name, imageList);
-                        alert(`A imagem "${name}" foi vinculada automaticamente.`);
-                    }, timeUntilStart);
+                if (startTimeMs <= now && endTimeMs > now) {
+                    // Vincula automaticamente a imagem
+                    addImageToList(img.src, name, imageList);
+                    alert(`A imagem "${name}" foi vinculada automaticamente.`);
                 }
 
                 // Remove automaticamente após o término do período
-                const timeUntilEnd = endTimeMs - Date.now();
-                if (timeUntilEnd > 0) {
-                    console.log(`Agendando remoção da imagem "${name}" em ${timeUntilEnd}ms.`);
-                    setTimeout(() => {
-                        deleteScheduledPost(name);
-                        alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
-                    }, timeUntilEnd);
+                if (endTimeMs <= now) {
+                    deleteScheduledPost(name);
+                    alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
                 }
             }
 
