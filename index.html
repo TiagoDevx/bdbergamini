@@ -259,7 +259,7 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container" style="display: none;">
     <div class="header">
         <h1>Gerenciamento de Imagens</h1>
         <div class="clock" id="clock">Carregando...</div>
@@ -331,6 +331,7 @@
         const password = document.getElementById('password').value.trim();
 
         if (username === USERNAME && password === PASSWORD) {
+            alert('Login bem-sucedido!');
             document.querySelector('.login-container').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
             loadImages();
@@ -341,7 +342,14 @@
         }
     }
 
-    document.getElementById('login-button').addEventListener('click', login);
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginButton = document.getElementById('login-button');
+        if (loginButton) {
+            loginButton.addEventListener('click', login);
+        } else {
+            console.error('Botão de login não encontrado.');
+        }
+    });
 
     // Função para iniciar o relógio
     function startClock() {
@@ -519,8 +527,6 @@
                     currentNumber++;
 
                     const storageRef = storage.ref(`images/${numericName}`);
-                    storageRef.putString(base64, 'base64').then
-                                        const storageRef = storage.ref(`images/${numericName}`);
                     storageRef.putString(base64, 'base64').then(() => {
                         // Atualiza o nome no Firebase Realtime Database
                         const scheduledRef = database.ref('scheduledImages/' + key);
