@@ -9,7 +9,6 @@
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
             padding: 20px;
-            margin: 0;
         }
         .login-container {
             display: flex;
@@ -45,10 +44,6 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-        }
-        .login-box button:hover {
-            background-color: #ff6347;
         }
         .container {
             max-width: 800px;
@@ -59,77 +54,26 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             display: none;
         }
-        #drop-area, #scheduled-drop-area {
-            border: 2px dashed #ff7f50;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            background-color: #fffaf0;
-        }
-        #drop-area.highlight, #scheduled-drop-area.highlight {
-            border-color: #ff6347;
-        }
-        .progress-bar-container {
-            margin-top: 10px;
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            width: 0%;
-            height: 10px;
-            background-color: #ff7f50;
-        }
-        .action-buttons {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .action-buttons button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .action-buttons .send-now {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .action-buttons .send-now:hover {
-            background-color: #45a049;
-        }
-        .action-buttons .schedule {
-            background-color: #ff7f50;
-            color: white;
-        }
-        .action-buttons .schedule:hover {
-            background-color: #ff6347;
-        }
-        .image-list, .scheduled-posts-list, .history-list {
+        .image-list {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 20px;
         }
-        .image-item, .scheduled-post-item, .history-item {
+        .image-item {
             position: relative;
-            width: 80px; /* Tamanho padrão */
-            height: 80px; /* Tamanho padrão */
+            width: 80px;
+            height: 80px;
             border: 1px solid #ff7f50;
             border-radius: 8px;
             overflow: hidden;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
         }
-        .image-item img, .scheduled-post-item img, .history-item img {
+        .image-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .image-item .delete-btn, .scheduled-post-item .delete-btn, .history-item .delete-btn {
+        .image-item .delete-btn {
             position: absolute;
             top: 5px;
             right: 5px;
@@ -137,71 +81,13 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 16px; /* Botão menor */
-            height: 16px; /* Botão menor */
+            width: 16px;
+            height: 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px; /* Ícone menor */
-        }
-        .scheduled-section, .history-section {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #fffaf0;
-            border: 1px solid #ff7f50;
-            border-radius: 8px;
-            display: none;
-        }
-        .scheduled-section h3, .history-section h3 {
-            margin-bottom: 15px;
-            color: #ff7f50;
-        }
-        .schedule-form {
-            margin-top: 20px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .schedule-form input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .schedule-form button {
-            padding: 10px 20px;
-            background-color: #ff7f50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .schedule-form button:hover {
-            background-color: #ff6347;
-        }
-        .delete-all-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #ff4500;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-        .delete-all-btn:hover {
-            background-color: #b22222;
-        }
-        .scheduled-post-item .period-label, .history-item .period-label {
-            position: absolute;
-            bottom: 5px;
-            left: 5px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
             font-size: 10px;
-            padding: 2px 5px;
-            border-radius: 5px;
         }
         .clock {
             font-size: 24px;
@@ -225,52 +111,12 @@
 <div class="container">
     <h1>Gerenciamento de Imagens</h1>
     <div class="clock" id="clock">Carregando...</div>
-    <!-- Área de Upload (Vincular Agora) -->
-    <div>
-        <h2>Vincular Agora</h2>
-        <div id="drop-area">
-            <p>Arraste e solte suas imagens aqui</p>
-            <input type="file" id="fileElem" multiple accept="image/*" style="display:none">
-            <label class="button" for="fileElem">Selecione arquivos</label>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-        <div class="image-list" id="image-list"></div>
-    </div>
-    <!-- Botões de Ação -->
-    <div class="action-buttons">
-        <button class="send-now" onclick="sendNow()">Vincular Agora</button>
-        <button class="schedule" onclick="showScheduledSection()">Agendar Post</button>
-        <button class="history" onclick="showHistory()">Histórico de Agendamentos</button>
-    </div>
-    <!-- Seção de Agendamento -->
-    <div class="scheduled-section" id="scheduled-section">
-        <h2>Agendar Post</h2>
-        <div id="scheduled-drop-area">
-            <p>Arraste e solte suas imagens aqui</p>
-            <input type="file" id="scheduled-fileElem" multiple accept="image/*" style="display:none">
-            <label class="button" for="scheduled-fileElem">Selecione arquivos</label>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="scheduled-progress-bar"></div>
-        </div>
-        <div class="schedule-form" id="schedule-form">
-            <h3>Definir Período</h3>
-            <input type="date" id="start-date" placeholder="Data de Início">
-            <input type="time" id="start-time" placeholder="Hora de Início">
-            <input type="date" id="end-date" placeholder="Data de Término">
-            <input type="time" id="end-time" placeholder="Hora de Término">
-            <button onclick="scheduleImages()">Confirmar Agendamento</button>
-        </div>
-        <div class="scheduled-posts-list" id="scheduled-posts-list"></div>
-    </div>
-    <!-- Histórico de Imagens Programadas -->
-    <div class="history-section" id="history-section">
-        <h3>Histórico de Imagens Programadas</h3>
-        <div class="history-list" id="history-list"></div>
-    </div>
-    <button class="delete-all-btn" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
+    <h2>Vincular Agora</h2>
+    <input type="file" id="fileElem" multiple accept="image/*">
+    <div class="image-list" id="image-list"></div>
+    <button onclick="scheduleImages()">Agendar Post</button>
+    <button onclick="showHistory()">Histórico</button>
+    <button onclick="deleteAllImages()">Apagar Todas as Imagens</button>
 </div>
 
 <!-- Bibliotecas -->
@@ -286,7 +132,7 @@
         storageBucket: "bc-berga.firebasestorage.app",
         messagingSenderId: "955771763943",
         appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
-             measurementId: "G-1234T7JC84"
+        measurementId: "G-1234T7JC84"
     };
     const app = firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
@@ -295,19 +141,8 @@
     // Variáveis globais
     const USERNAME = "MarketingBergamini";
     const PASSWORD = "MarketingLoja010401@";
-    const dropArea = document.getElementById('drop-area');
-    const scheduledDropArea = document.getElementById('scheduled-drop-area');
-    const fileElem = document.getElementById('fileElem');
-    const scheduledFileElem = document.getElementById('scheduled-fileElem');
     const imageList = document.getElementById('image-list');
-    const scheduledPostsList = document.getElementById('scheduled-posts-list');
-    const historyList = document.getElementById('history-list');
     let scheduledImages = [];
-
-    // Função para sanitizar nomes de arquivos
-    function sanitizeFileName(name) {
-        return name.replace(/[.#$[\]]/g, '_'); // Substitui caracteres inválidos por sublinhados
-    }
 
     // Função de Login
     function login() {
@@ -318,15 +153,13 @@
             document.querySelector('.login-container').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
             loadImages();
-            loadScheduledImages();
             startClock();
-            startScheduledImageCheck(); // Inicia a verificação automática
+            startScheduledImageCheck();
         } else {
             alert('Usuário ou senha incorretos!');
         }
     }
 
-    // Adiciona um event listener ao botão de login
     document.getElementById('login-button').addEventListener('click', login);
 
     // Função para iniciar o relógio
@@ -344,7 +177,7 @@
         storageRef.listAll().then((res) => {
             res.items.forEach((itemRef) => {
                 itemRef.getDownloadURL().then((url) => {
-                    addImageToList(url, itemRef.name, imageList);
+                    addImageToList(url, itemRef.name);
                 }).catch((error) => {
                     console.error('Erro ao obter URL da imagem:', error);
                 });
@@ -355,7 +188,7 @@
     }
 
     // Função para adicionar imagens à lista
-    function addImageToList(url, name, listElement) {
+    function addImageToList(url, name) {
         const div = document.createElement('div');
         div.className = 'image-item';
         div.dataset.name = name;
@@ -364,26 +197,20 @@
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete-btn';
         deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = () => deleteImage(name, listElement);
+        deleteBtn.onclick = () => deleteImage(name);
         div.appendChild(img);
         div.appendChild(deleteBtn);
-        listElement.appendChild(div);
-        return { name, url };
+        imageList.appendChild(div);
     }
 
     // Função para excluir uma imagem
-    function deleteImage(name, listElement) {
+    function deleteImage(name) {
         if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
 
         const storageRef = storage.ref(`images/${name}`);
         storageRef.delete().then(() => {
-            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"], .history-item[data-name="${name}"]`);
+            const div = document.querySelector(`.image-item[data-name="${name}"]`);
             if (div) div.remove();
-
-            if (listElement === scheduledPostsList || listElement === historyList) {
-                removeScheduledImageFromDatabase(name);
-            }
-
             alert(`Imagem "${name}" excluída com sucesso!`);
         }).catch((error) => {
             console.error('Erro ao excluir imagem:', error);
@@ -391,114 +218,21 @@
         });
     }
 
-    // Eventos de arrastar e soltar
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-        scheduledDropArea.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-        scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.add('highlight'), false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-        scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.remove('highlight'), false);
-    });
-
-    dropArea.addEventListener('drop', handleDrop, false);
-    scheduledDropArea.addEventListener('drop', handleScheduledDrop, false);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleFiles(files, imageList);
-    }
-
-    function handleScheduledDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleScheduledFiles(files);
-    }
-
-    fileElem.addEventListener('change', () => {
-        handleFiles(fileElem.files, imageList);
-    });
-
-    scheduledFileElem.addEventListener('change', () => {
-        handleScheduledFiles(scheduledFileElem.files);
-    });
-
-    function handleFiles(files, listElement) {
-        [...files].forEach(file => uploadFile(file, listElement));
-    }
-
-    function handleScheduledFiles(files) {
-        [...files].forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64String = event.target.result.split(',')[1]; // Remove o prefixo "data:image/..."
-                scheduledImages.push({ name: file.name, base64: base64String });
-                addImageToList(reader.result, file.name, scheduledPostsList);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    function uploadFile(file, listElement) {
-        const storageRef = storage.ref(`images/${file.name}`);
-        const uploadTask = storageRef.put(file);
-        const progressBar = listElement === imageList ? document.getElementById('progress-bar') : document.getElementById('scheduled-progress-bar');
-
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                progressBar.style.width = `${progress}%`;
-            },
-            (error) => {
-                console.error('Erro ao fazer upload:', error);
-                alert('Erro ao carregar imagem.');
-            },
-            () => {
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    addImageToList(downloadURL, file.name, listElement);
-                    progressBar.style.width = '0%';
-                });
-            }
-        );
-    }
-
-    function showScheduledSection() {
-        const scheduledSection = document.getElementById('scheduled-section');
-        const scheduleForm = document.getElementById('schedule-form');
-
-        // Exibe a seção de agendamento
-        scheduledSection.style.display = 'block';
-
-        // Exibe o formulário de agendamento
-        scheduleForm.style.display = 'flex';
-    }
-
-    function showHistory() {
-        const historySection = document.getElementById('history-section');
-        historySection.style.display = 'block';
-        loadScheduledImages();
-    }
-
+    // Função para agendar imagens
     function scheduleImages() {
-        const startDate = document.getElementById('start-date').value;
-        const startTime = document.getElementById('start-time').value;
-        const endDate = document.getElementById('end-date').value;
-        const endTime = document.getElementById('end-time').value;
+        const files = document.getElementById('fileElem').files;
+        if (files.length === 0) {
+            alert('Selecione pelo menos uma imagem para agendar.');
+            return;
+        }
+
+        const startDate = prompt('Digite a data de início (YYYY-MM-DD):');
+        const startTime = prompt('Digite a hora de início (HH:mm):');
+        const endDate = prompt('Digite a data de término (YYYY-MM-DD):');
+        const endTime = prompt('Digite a hora de término (HH:mm):');
 
         if (!startDate || !startTime || !endDate || !endTime) {
-            alert('Por favor, preencha todos os campos de data e hora.');
+            alert('Preencha todos os campos de data e hora.');
             return;
         }
 
@@ -510,255 +244,56 @@
             return;
         }
 
-        if (scheduledImages.length === 0) {
-            alert('Nenhuma imagem foi selecionada para agendamento.');
-            return;
-        }
+        [...files].forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64String = event.target.result.split(',')[1];
+                const sanitizedKey = sanitizeFileName(file.name);
 
-        scheduledImages.forEach(image => {
-            const { name, base64 } = image;
-
-            // Salva o agendamento no Firebase Realtime Database
-            saveScheduledImageToDatabase(name, startDateTime, endDateTime);
-
-            // Adiciona à lista de posts programados
-            const div = document.createElement('div');
-            div.className = 'scheduled-post-item';
-            div.dataset.name = name;
-            const img = document.createElement('img');
-            img.src = `data:image/jpeg;base64,${base64}`;
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-btn';
-            deleteBtn.innerHTML = '&times;';
-            deleteBtn.onclick = () => deleteScheduledPost(name);
-            const periodLabel = document.createElement('div');
-            periodLabel.className = 'period-label';
-            periodLabel.textContent = `${startDateTime.toLocaleString()} - ${endDateTime.toLocaleString()}`;
-            div.appendChild(img);
-            div.appendChild(deleteBtn);
-            div.appendChild(periodLabel);
-            scheduledPostsList.appendChild(div);
-
-            // Adiciona a imagem ao histórico
-            const historyDiv = document.createElement('div');
-            historyDiv.className = 'history-item';
-            historyDiv.dataset.name = name;
-            const historyImg = document.createElement('img');
-            historyImg.src = img.src;
-            const historyDeleteBtn = document.createElement('button');
-            historyDeleteBtn.className = 'delete-btn';
-            historyDeleteBtn.innerHTML = '&times;';
-            historyDeleteBtn.onclick = () => deleteImage(name, historyList);
-            const historyPeriodLabel = document.createElement('div');
-            historyPeriodLabel.className = 'period-label';
-            historyPeriodLabel.textContent = `${startDateTime.toLocaleString()} - ${endDateTime.toLocaleString()}`;
-            historyDiv.appendChild(historyImg);
-            historyDiv.appendChild(historyDeleteBtn);
-            historyDiv.appendChild(historyPeriodLabel);
-            historyList.appendChild(historyDiv);
-        });
-
-        alert('Imagens agendadas com sucesso!');
-        scheduledImages = []; // Limpa a lista de imagens agendadas
-    }
-
-    function saveScheduledImageToDatabase(name, startDateTime, endDateTime) {
-        const sanitizedKey = sanitizeFileName(name); // Sanitiza o nome do arquivo
-        const scheduledRef = database.ref('scheduledImages/' + sanitizedKey);
-        scheduledRef.set({
-            name: name,
-            startDateTime: startDateTime.toISOString(),
-            endDateTime: endDateTime.toISOString()
-        }).then(() => {
-            console.log(`Agendamento da imagem "${name}" salvo no banco de dados.`);
-        }).catch((error) => {
-            console.error('Erro ao salvar agendamento no banco de dados:', error);
+                // Salva no Firebase Realtime Database
+                const scheduledRef = database.ref('scheduledImages/' + sanitizedKey);
+                scheduledRef.set({
+                    name: file.name,
+                    startDateTime: startDateTime.toISOString(),
+                    endDateTime: endDateTime.toISOString(),
+                    base64: base64String
+                }).then(() => {
+                    alert(`Imagem "${file.name}" agendada com sucesso!`);
+                }).catch((error) => {
+                    console.error('Erro ao salvar agendamento:', error);
+                });
+            };
+            reader.readAsDataURL(file);
         });
     }
 
-    function removeScheduledImageFromDatabase(name) {
-        const sanitizedKey = sanitizeFileName(name); // Sanitiza o nome do arquivo
-        const scheduledRef = database.ref('scheduledImages/' + sanitizedKey);
-        scheduledRef.remove().then(() => {
-            console.log(`Agendamento da imagem "${name}" removido do banco de dados.`);
-        }).catch((error) => {
-            console.error('Erro ao remover agendamento do banco de dados:', error);
-        });
+    // Função para sanitizar nomes de arquivos
+    function sanitizeFileName(name) {
+        return name.replace(/[.#$[\]]/g, '_');
     }
 
-    function loadScheduledImages() {
-        const scheduledRef = database.ref('scheduledImages');
-        scheduledRef.once('value').then((snapshot) => {
-            const scheduledData = snapshot.val();
-            if (!scheduledData) return;
-
-            const now = Date.now();
-
-            for (const [sanitizedKey, data] of Object.entries(scheduledData)) {
-                const { name, startDateTime, endDateTime } = data; // Extrai os dados
-                const startDateTimeObj = new Date(startDateTime);
-                const endDateTimeObj = new Date(endDateTime);
-
-                // Verifica se a imagem ainda está dentro do período programado
-                if (endDateTimeObj <= new Date()) {
-                    console.log(`A imagem "${name}" já expirou. Removendo do agendamento.`);
-                    removeScheduledImageFromDatabase(name);
-                    continue;
-                }
-
-                // Adiciona a imagem à lista de posts programados
-                const div = document.createElement('div');
-                div.className = 'scheduled-post-item';
-                div.dataset.name = name;
-                const img = document.createElement('img');
-                img.src = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/images%2F${encodeURIComponent(name)}?alt=media`;
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '&times;';
-                deleteBtn.onclick = () => deleteScheduledPost(name);
-                const periodLabel = document.createElement('div');
-                periodLabel.className = 'period-label';
-                periodLabel.textContent = `${startDateTimeObj.toLocaleString()} - ${endDateTimeObj.toLocaleString()}`;
-                div.appendChild(img);
-                div.appendChild(deleteBtn);
-                div.appendChild(periodLabel);
-                scheduledPostsList.appendChild(div);
-
-                // Adiciona a imagem ao histórico
-                const historyDiv = document.createElement('div');
-                historyDiv.className = 'history-item';
-                historyDiv.dataset.name = name;
-                const historyImg = document.createElement('img');
-                historyImg.src = img.src;
-                const historyDeleteBtn = document.createElement('button');
-                historyDeleteBtn.className = 'delete-btn';
-                historyDeleteBtn.innerHTML = '&times;';
-                historyDeleteBtn.onclick = () => deleteImage(name, historyList);
-                const historyPeriodLabel = document.createElement('div');
-                historyPeriodLabel.className = 'period-label';
-                historyPeriodLabel.textContent = `${startDateTimeObj.toLocaleString()} - ${endDateTimeObj.toLocaleString()}`;
-                historyDiv.appendChild(historyImg);
-                historyDiv.appendChild(historyDeleteBtn);
-                historyDiv.appendChild(historyPeriodLabel);
-                historyList.appendChild(historyDiv);
-
-                // Verifica se a imagem deve ser vinculada agora
-                const startTimeMs = startDateTimeObj.getTime();
-                const endTimeMs = endDateTimeObj.getTime();
-
-                if (startTimeMs <= now && endTimeMs > now) {
-                    // Vincula automaticamente a imagem
-                    addImageToList(img.src, name, imageList);
-                alert(`A imagem "${name}" foi vinculada automaticamente.`);
-                }
-
-                // Remove automaticamente após o término do período
-                if (endTimeMs <= now) {
-                    deleteScheduledPost(name);
-                    alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
-                }
-            }
-
-            // Exibe a seção de histórico se houver imagens programadas
-            if (historyList.children.length > 0) {
-                document.getElementById('history-section').style.display = 'block';
-            }
-        }).catch((error) => {
-            console.error('Erro ao carregar imagens agendadas:', error);
-        });
-    }
-
-    function deleteScheduledPost(name) {
-        const storageRef = storage.ref(`images/${name}`);
-        storageRef.delete().then(() => {
-            const div = document.querySelector(`.scheduled-post-item[data-name="${name}"], .history-item[data-name="${name}"]`);
-            if (div) div.remove();
-            removeScheduledImageFromDatabase(name);
-            alert(`Imagem "${name}" excluída com sucesso!`);
-        }).catch((error) => {
-            console.error('Erro ao excluir imagem programada:', error);
-            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
-        });
-    }
-
-    function sendNow() {
-        alert('As imagens foram vinculadas e estão disponíveis agora!');
-    }
-
-    function deleteAllImages() {
-        if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
-
-        const allImages = [...document.querySelectorAll('.image-item, .scheduled-post-item, .history-item')];
-        if (allImages.length === 0) {
-            alert('Não há imagens para excluir.');
-            return;
-        }
-
-        let deletedCount = 0;
-        let errorCount = 0;
-
-        allImages.forEach(div => {
-            const name = div.dataset.name;
-            const storageRef = storage.ref(`images/${name}`);
-            storageRef.delete().then(() => {
-                div.remove();
-                deletedCount++;
-                if (deletedCount + errorCount === allImages.length) {
-                    alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
-                }
-            }).catch((error) => {
-                console.error(`Erro ao excluir imagem "${name}":`, error);
-                errorCount++;
-                if (deletedCount + errorCount === allImages.length) {
-                    alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
-                }
-            });
-        });
-
-        // Limpa todos os agendamentos do banco de dados
-        database.ref('scheduledImages').remove().then(() => {
-            console.log('Todos os agendamentos foram removidos do banco de dados.');
-        }).catch((error) => {
-            console.error('Erro ao limpar agendamentos do banco de dados:', error);
-        });
-    }
-
-    // Função para verificar automaticamente se uma imagem deve ser vinculada ou removida
+    // Função para verificar imagens agendadas
     function checkScheduledImages() {
+        const now = Date.now();
         const scheduledRef = database.ref('scheduledImages');
         scheduledRef.once('value').then((snapshot) => {
             const scheduledData = snapshot.val();
             if (!scheduledData) return;
 
-            const now = Date.now();
+            for (const [key, data] of Object.entries(scheduledData)) {
+                const { name, startDateTime, endDateTime, base64 } = data;
+                const startMs = new Date(startDateTime).getTime();
+                const endMs = new Date(endDateTime).getTime();
 
-            for (const [sanitizedKey, data] of Object.entries(scheduledData)) {
-                const { name, startDateTime, endDateTime } = data; // Extrai os dados
-                const startDateTimeObj = new Date(startDateTime);
-                const endDateTimeObj = new Date(endDateTime);
-
-                // Verifica se a imagem ainda está dentro do período programado
-                if (endDateTimeObj <= new Date()) {
-                    console.log(`A imagem "${name}" já expirou. Removendo do agendamento.`);
-                    removeScheduledImageFromDatabase(name);
-                    continue;
+                if (startMs <= now && endMs > now) {
+                    // Vincula automaticamente
+                    const imgSrc = `data:image/jpeg;base64,${base64}`;
+                    addImageToList(imgSrc, name);
                 }
 
-                // Verifica se a imagem deve ser vinculada agora
-                const startTimeMs = startDateTimeObj.getTime();
-                const endTimeMs = endDateTimeObj.getTime();
-
-                if (startTimeMs <= now && endTimeMs > now) {
-                    // Vincula automaticamente a imagem
-                    const imgSrc = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/images%2F${encodeURIComponent(name)}?alt=media`;
-                    addImageToList(imgSrc, name, imageList);
-                    alert(`A imagem "${name}" foi vinculada automaticamente.`);
-                }
-
-                // Remove automaticamente após o término do período
-                if (endTimeMs <= now) {
-                    deleteScheduledPost(name);
-                    alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
+                if (endMs <= now) {
+                    // Remove automaticamente
+                    deleteScheduledPost(key, name);
                 }
             }
         }).catch((error) => {
@@ -766,18 +301,51 @@
         });
     }
 
-    // Função para iniciar a verificação automática de imagens agendadas
+    // Função para remover um agendamento
+    function deleteScheduledPost(key, name) {
+        const scheduledRef = database.ref('scheduledImages/' + key);
+        scheduledRef.remove().then(() => {
+            const div = document.querySelector(`.image-item[data-name="${name}"]`);
+            if (div) div.remove();
+            alert(`Imagem "${name}" removida automaticamente após o término do período.`);
+        }).catch((error) => {
+            console.error('Erro ao remover agendamento:', error);
+        });
+    }
+
+    // Função para iniciar a verificação automática
     function startScheduledImageCheck() {
         setInterval(checkScheduledImages, 60000); // Verifica a cada 1 minuto
     }
 
-    // Carrega as imagens e inicia a verificação automática ao carregar a página
-    window.onload = () => {
-        loadImages();
-        loadScheduledImages();
-        startClock();
-        startScheduledImageCheck(); // Inicia a verificação automática
-    };
+    // Função para mostrar o histórico
+    function showHistory() {
+        alert('Funcionalidade de histórico ainda em desenvolvimento.');
+    }
+
+    // Função para apagar todas as imagens
+    function deleteAllImages() {
+        if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
+
+        const storageRef = storage.ref('images/');
+        storageRef.listAll().then((res) => {
+            res.items.forEach((itemRef) => {
+                itemRef.delete().catch((error) => {
+                    console.error('Erro ao excluir imagem:', error);
+                });
+            });
+        }).catch((error) => {
+            console.error('Erro ao listar imagens:', error);
+        });
+
+        database.ref('scheduledImages').remove().then(() => {
+            alert('Todas as imagens e agendamentos foram removidos.');
+        }).catch((error) => {
+            console.error('Erro ao limpar agendamentos:', error);
+        });
+
+        imageList.innerHTML = '';
+    }
 </script>
 </body>
 </html>
