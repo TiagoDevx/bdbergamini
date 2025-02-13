@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload e Gerenciamento de Imagens</title>
+    <title>Uploads e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -315,8 +315,16 @@
     function startClock() {
         const clockElement = document.getElementById('clock');
         setInterval(() => {
-            const now = new Date();
-            clockElement.textContent = `Relógio: ${now.toLocaleString()}`;
+            fetch('https://worldtimeapi.org/api/timezone/America/Sao_Paulo')
+                .then(response => response.json())
+                .then(data => {
+                    const datetime = new Date(data.datetime);
+                    clockElement.textContent = `Relógio: ${datetime.toLocaleString()}`;
+                })
+                .catch(error => {
+                    console.error('Erro ao obter horário da internet:', error);
+                    clockElement.textContent = 'Relógio: Erro ao carregar horário.';
+                });
         }, 1000);
     }
 
@@ -419,7 +427,8 @@
         e.preventDefault();
         e.stopPropagation();
     }
-        ['dragenter', 'dragover'].forEach(eventName => {
+
+    ['dragenter', 'dragover'].forEach(eventName => {
         dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
         scheduledDropArea.addEventListener(eventName, () => scheduledDropArea.classList.add('highlight'), false);
     });
@@ -502,7 +511,6 @@
 
         const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
-        const now = new Date();
 
         if (startDateTime > endDateTime) {
             alert('A data/hora de início não pode ser maior que a data/hora de término.');
@@ -512,7 +520,6 @@
         scheduledImages.forEach(image => {
             const startTimeMs = startDateTime.getTime();
             const endTimeMs = endDateTime.getTime();
-            const nowMs = now.getTime();
 
             // Salva o agendamento no Firebase Realtime Database
             saveScheduledImageToDatabase(image.name, startDateTime, endDateTime);
@@ -535,23 +542,17 @@
             div.appendChild(periodLabel);
             scheduledPostsList.appendChild(div);
 
-            // Verifica se a imagem deve ser exibida agora ou mais tarde
-            if (startTimeMs <= nowMs && endTimeMs > nowMs) {
-                // Exibe a imagem imediatamente se estiver dentro do período
+            // Agenda para exibir a imagem no futuro
+            setTimeout(() => {
                 addImageToList(image.url, image.name, imageList);
-            } else if (startTimeMs > nowMs) {
-                // Agenda para exibir a imagem no futuro
-                setTimeout(() => {
-                    addImageToList(image.url, image.name, imageList);
-                    alert(`A imagem "${image.name}" foi vinculada automaticamente.`);
-                }, startTimeMs - nowMs);
-            }
+                alert(`A imagem "${image.name}" foi vinculada automaticamente.`);
+            }, startTimeMs - Date.now());
 
             // Remove automaticamente após o término do período
             setTimeout(() => {
                 deleteScheduledPost(image.name);
                 alert(`A imagem "${image.name}" foi removida automaticamente após o término do período.`);
-            }, endTimeMs - nowMs);
+            }, endTimeMs - Date.now());
         });
 
         alert('Imagens agendadas com sucesso!');
@@ -588,10 +589,9 @@
             for (const [name, data] of Object.entries(scheduledData)) {
                 const startDateTime = new Date(data.startDateTime);
                 const endDateTime = new Date(data.endDateTime);
-                const now = new Date();
 
                 // Verifica se a imagem ainda está dentro do período programado
-                if (endDateTime <= now) {
+                if (endDateTime <= new Date()) {
                     console.log(`A imagem "${name}" já expirou. Removendo do agendamento.`);
                     removeScheduledImageFromDatabase(name);
                     continue;
@@ -615,27 +615,22 @@
                 div.appendChild(periodLabel);
                 scheduledPostsList.appendChild(div);
 
-                // Verifica se a imagem deve ser exibida agora ou mais tarde
+                // Agenda para exibir a imagem no futuro
                 const startTimeMs = startDateTime.getTime();
                 const endTimeMs = endDateTime.getTime();
-                const nowMs = now.getTime();
 
-                if (startTimeMs <= nowMs && endTimeMs > nowMs) {
-                    // Exibe a imagem imediatamente se estiver dentro do período
-                    addImageToList(img.src, name, imageList);
-                } else if (startTimeMs > nowMs) {
-                    // Agenda para exibir a imagem no futuro
+                if (startTimeMs > Date.now()) {
                     setTimeout(() => {
                         addImageToList(img.src, name, imageList);
                         alert(`A imagem "${name}" foi vinculada automaticamente.`);
-                    }, startTimeMs - nowMs);
+                    }, startTimeMs - Date.now());
                 }
 
                 // Remove automaticamente após o término do período
                 setTimeout(() => {
                     deleteScheduledPost(name);
                     alert(`A imagem "${name}" foi removida automaticamente após o término do período.`);
-                }, endTimeMs - nowMs);
+                }, endTimeMs - Date.now());
             }
         }).catch((error) => {
             console.error('Erro ao carregar imagens agendadas:', error);
