@@ -311,6 +311,11 @@
     const scheduledPostsList = document.getElementById('scheduled-posts-list');
     let scheduledImages = [];
 
+    // Função para sanitizar nomes de arquivos
+    function sanitizeFileName(name) {
+        return name.replace(/[.#$[\]]/g, '_'); // Substitui caracteres inválidos por sublinhados
+    }
+
     function startClock() {
         const clockElement = document.getElementById('clock');
         setInterval(() => {
@@ -356,9 +361,7 @@
         div.appendChild(deleteBtn);
         listElement.appendChild(div);
         return { name, url };
-    }
-
-    function deleteImage(name, listElement) {
+            function deleteImage(name, listElement) {
         if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
 
         const storageRef = storage.ref(`images/${name}`);
@@ -554,8 +557,7 @@
                     reject(error);
                 },
                 () => {
-                    uploadTask.snapshot.ref.getDownloadURL().
-                                            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
                         resolve(downloadURL);
                     });
                 }
@@ -564,7 +566,8 @@
     }
 
     function saveScheduledImageToDatabase(name, startDateTime, endDateTime) {
-        const scheduledRef = database.ref('scheduledImages/' + name);
+        const sanitizedKey = sanitizeFileName(name); // Sanitiza o nome do arquivo
+        const scheduledRef = database.ref('scheduledImages/' + sanitizedKey);
         scheduledRef.set({
             name: name,
             startDateTime: startDateTime.toISOString(),
@@ -577,7 +580,8 @@
     }
 
     function removeScheduledImageFromDatabase(name) {
-        const scheduledRef = database.ref('scheduledImages/' + name);
+        const sanitizedKey = sanitizeFileName(name); // Sanitiza o nome do arquivo
+        const scheduledRef = database.ref('scheduledImages/' + sanitizedKey);
         scheduledRef.remove().then(() => {
             console.log(`Agendamento da imagem "${name}" removido do banco de dados.`);
         }).catch((error) => {
@@ -591,12 +595,13 @@
             const scheduledData = snapshot.val();
             if (!scheduledData) return;
 
-            for (const [name, data] of Object.entries(scheduledData)) {
-                const startDateTime = new Date(data.startDateTime);
-                const endDateTime = new Date(data.endDateTime);
+            for (const [sanitizedKey, data] of Object.entries(scheduledData)) {
+                const { name, startDateTime, endDateTime } = data; // Extrai os dados
+                const startDateTimeObj = new Date(startDateTime);
+                const endDateTimeObj = new Date(endDateTime);
 
                 // Verifica se a imagem ainda está dentro do período programado
-                if (endDateTime <= new Date()) {
+                if (endDateTimeObj <= new Date()) {
                     console.log(`A imagem "${name}" já expirou. Removendo do agendamento.`);
                     removeScheduledImageFromDatabase(name);
                     continue;
@@ -614,15 +619,15 @@
                 deleteBtn.onclick = () => deleteScheduledPost(name);
                 const periodLabel = document.createElement('div');
                 periodLabel.className = 'period-label';
-                periodLabel.textContent = `${startDateTime.toLocaleString()} - ${endDateTime.toLocaleString()}`;
+                periodLabel.textContent = `${startDateTimeObj.toLocaleString()} - ${endDateTimeObj.toLocaleString()}`;
                 div.appendChild(img);
                 div.appendChild(deleteBtn);
                 div.appendChild(periodLabel);
                 scheduledPostsList.appendChild(div);
 
                 // Agenda para exibir a imagem no futuro
-                const startTimeMs = startDateTime.getTime();
-                const endTimeMs = endDateTime.getTime();
+                const startTimeMs = startDateTimeObj.getTime();
+                const endTimeMs = endDateTimeObj.getTime();
 
                 if (startTimeMs > Date.now()) {
                     setTimeout(() => {
