@@ -286,7 +286,7 @@
         storageBucket: "bc-berga.firebasestorage.app",
         messagingSenderId: "955771763943",
         appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
-        measurementId: "G-1234T7JC84"
+             measurementId: "G-1234T7JC84"
     };
     const app = firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
@@ -649,7 +649,7 @@
                 if (startTimeMs <= now && endTimeMs > now) {
                     // Vincula automaticamente a imagem
                     addImageToList(img.src, name, imageList);
-                    alert(`A imagem "${name}" foi vinculada automaticamente.`);
+                alert(`A imagem "${name}" foi vinculada automaticamente.`);
                 }
 
                 // Remove automaticamente após o término do período
