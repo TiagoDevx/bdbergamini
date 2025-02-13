@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uploads e Gerenciamento de Imagens</title>
+    <title>Upload e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -218,7 +218,7 @@
         <h2>Login</h2>
         <input type="text" id="username" placeholder="Usuário">
         <input type="password" id="password" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
+        <button id="login-button">Entrar</button>
     </div>
 </div>
 
@@ -272,9 +272,37 @@
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
 <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyAPcnUH5oj0krqEBcKFkRxg6h7GWiOiGWs",
+        authDomain: "bc-berga.firebaseapp.com",
+        projectId: "bc-berga",
+        storageBucket: "bc-berga.firebasestorage.app",
+        messagingSenderId: "955771763943",
+        appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
+        measurementId: "G-1234T7JC84"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+    const database = firebase.database();
+
+    // Variáveis globais
     const USERNAME = "MarketingBergamini";
     const PASSWORD = "MarketingLoja010401@";
+    const dropArea = document.getElementById('drop-area');
+    const scheduledDropArea = document.getElementById('scheduled-drop-area');
+    const fileElem = document.getElementById('fileElem');
+    const scheduledFileElem = document.getElementById('scheduled-fileElem');
+    const imageList = document.getElementById('image-list');
+    const scheduledPostsList = document.getElementById('scheduled-posts-list');
+    let scheduledImages = [];
 
+    // Função para sanitizar nomes de arquivos
+    function sanitizeFileName(name) {
+        return name.replace(/[.#$[\]]/g, '_'); // Substitui caracteres inválidos por sublinhados
+    }
+
+    // Função de Login
     function login() {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
@@ -290,33 +318,10 @@
         }
     }
 
-    // Configuração do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyAPcnUH5oj0krqEBcKFkRxg6h7GWiOiGWs",
-        authDomain: "bc-berga.firebaseapp.com",
-        projectId: "bc-berga",
-        storageBucket: "bc-berga.firebasestorage.app",
-        messagingSenderId: "955771763943",
-        appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
-        measurementId: "G-1234T7JC84"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-    const database = firebase.database();
-    const dropArea = document.getElementById
-        const dropArea = document.getElementById('drop-area');
-    const scheduledDropArea = document.getElementById('scheduled-drop-area');
-    const fileElem = document.getElementById('fileElem');
-    const scheduledFileElem = document.getElementById('scheduled-fileElem');
-    const imageList = document.getElementById('image-list');
-    const scheduledPostsList = document.getElementById('scheduled-posts-list');
-    let scheduledImages = [];
+    // Adiciona um event listener ao botão de login
+    document.getElementById('login-button').addEventListener('click', login);
 
-    // Função para sanitizar nomes de arquivos
-    function sanitizeFileName(name) {
-        return name.replace(/[.#$[\]]/g, '_'); // Substitui caracteres inválidos por sublinhados
-    }
-
+    // Função para iniciar o relógio
     function startClock() {
         const clockElement = document.getElementById('clock');
         setInterval(() => {
@@ -333,6 +338,7 @@
         }, 1000);
     }
 
+    // Função para carregar imagens
     function loadImages() {
         const storageRef = storage.ref('images/');
         storageRef.listAll().then((res) => {
@@ -348,6 +354,7 @@
         });
     }
 
+    // Função para adicionar imagens à lista
     function addImageToList(url, name, listElement) {
         const div = document.createElement('div');
         div.className = 'image-item';
@@ -364,6 +371,7 @@
         return { name, url };
     }
 
+    // Função para excluir uma imagem
     function deleteImage(name, listElement) {
         if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
 
@@ -384,6 +392,7 @@
         });
     }
 
+    // Eventos de arrastar e soltar
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
         scheduledDropArea.addEventListener(eventName, preventDefaults, false);
@@ -613,8 +622,8 @@
                 // Adiciona a imagem à lista de posts programados
                 const div = document.createElement('div');
                 div.className = 'scheduled-post-item';
-                div.dataset.name = name;
-                const img = document.createElement('img');
+                div.dataset.name = name
+                                const img = document.createElement('img');
                 img.src = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/images%2F${encodeURIComponent(name)}?alt=media`;
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
