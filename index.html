@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uploads e Gerenciamento de Imagens</title>
+    <title>Upload e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -282,7 +282,6 @@
         if (username === USERNAME && password === PASSWORD) {
             document.querySelector('.login-container').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
-            loadImages();
             loadScheduledImages();
             startClock();
         } else {
@@ -309,7 +308,6 @@
     const scheduledFileElem = document.getElementById('scheduled-fileElem');
     const imageList = document.getElementById('image-list');
     const scheduledPostsList = document.getElementById('scheduled-posts-list');
-    let images = [];
     let scheduledImages = [];
 
     function startClock() {
@@ -326,96 +324,6 @@
                     clockElement.textContent = 'Relógio: Erro ao carregar horário.';
                 });
         }, 1000);
-    }
-
-    function loadImages() {
-        const storageRef = storage.ref('images/');
-        storageRef.listAll().then((res) => {
-            res.items.forEach((itemRef) => {
-                itemRef.getDownloadURL().then((url) => {
-                    addImageToList(url, itemRef.name, imageList);
-                }).catch((error) => {
-                    console.error('Erro ao obter URL da imagem:', error);
-                });
-            });
-        }).catch((error) => {
-            console.error('Erro ao listar imagens:', error);
-        });
-    }
-
-    function addImageToList(url, name, listElement) {
-        const div = document.createElement('div');
-        div.className = 'image-item';
-        div.dataset.name = name;
-        const img = document.createElement('img');
-        img.src = url;
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = () => deleteImage(name, listElement);
-        div.appendChild(img);
-        div.appendChild(deleteBtn);
-        listElement.appendChild(div);
-        return { name, url };
-    }
-
-    function deleteImage(name, listElement) {
-        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
-
-        const storageRef = storage.ref(`images/${name}`);
-        storageRef.delete().then(() => {
-            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
-            if (div) div.remove();
-
-            if (listElement === imageList) {
-                images = images.filter(img => img.name !== name);
-            } else if (listElement === scheduledPostsList) {
-                scheduledImages = scheduledImages.filter(img => img.name !== name);
-                removeScheduledImageFromDatabase(name);
-            }
-
-            alert(`Imagem "${name}" excluída com sucesso!`);
-        }).catch((error) => {
-            console.error('Erro ao excluir imagem:', error);
-            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
-        });
-    }
-
-    function deleteAllImages() {
-        if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
-
-        const allImages = [...images, ...scheduledImages];
-        if (allImages.length === 0) {
-            alert('Não há imagens para excluir.');
-            return;
-        }
-
-        let deletedCount = 0;
-        let errorCount = 0;
-
-        allImages.forEach(img => {
-            const storageRef = storage.ref(`images/${img.name}`);
-            storageRef.delete().then(() => {
-                deletedCount++;
-                updateUIAfterDeletion(img.name);
-            }).catch((error) => {
-                console.error(`Erro ao excluir imagem "${img.name}":`, error);
-                errorCount++;
-            });
-        });
-
-        // Função para atualizar a interface após exclusão
-        function updateUIAfterDeletion(name) {
-            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
-            if (div) div.remove();
-
-            images = images.filter(img => img.name !== name);
-            scheduledImages = scheduledImages.filter(img => img.name !== name);
-
-            if (deletedCount + errorCount === allImages.length) {
-                alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
-            }
-        }
     }
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -444,28 +352,40 @@
     function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        handleFiles(files, imageList, images);
+        handleFiles(files, imageList);
     }
 
     function handleScheduledDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        handleFiles(files, scheduledPostsList, scheduledImages);
+        handleScheduledFiles(files);
     }
 
     fileElem.addEventListener('change', () => {
-        handleFiles(fileElem.files, imageList, images);
+        handleFiles(fileElem.files, imageList);
     });
 
     scheduledFileElem.addEventListener('change', () => {
-        handleFiles(scheduledFileElem.files, scheduledPostsList, scheduledImages);
+        handleScheduledFiles(scheduledFileElem.files);
     });
 
-    function handleFiles(files, listElement, imageArray) {
-        [...files].forEach(file => uploadFile(file, listElement, imageArray));
+    function handleFiles(files, listElement) {
+        [...files].forEach(file => uploadFile(file, listElement));
     }
 
-    function uploadFile(file, listElement, imageArray) {
+    function handleScheduledFiles(files) {
+        [...files].forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64String = event.target.result.split(',')[1]; // Remove o prefixo "data:image/..."
+                scheduledImages.push({ name: file.name, base64: base64String });
+                addImageToList(reader.result, file.name, scheduledPostsList);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function uploadFile(file, listElement) {
         const storageRef = storage.ref(`images/${file.name}`);
         const uploadTask = storageRef.put(file);
         const progressBar = listElement === imageList ? document.getElementById('progress-bar') : document.getElementById('scheduled-progress-bar');
@@ -481,21 +401,47 @@
             },
             () => {
                 uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    const image = addImageToList(downloadURL, file.name, listElement);
-                    imageArray.push(image);
+                    addImageToList(downloadURL, file.name, listElement);
                     progressBar.style.width = '0%';
                 });
             }
         );
     }
 
-    function sendNow() {
-        alert('As imagens foram vinculadas e estão disponíveis agora!');
+    function addImageToList(url, name, listElement) {
+        const div = document.createElement('div');
+        div.className = 'image-item';
+        div.dataset.name = name;
+        const img = document.createElement('img');
+        img.src = url;
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.onclick = () => deleteImage(name, listElement);
+        div.appendChild(img);
+        div.appendChild(deleteBtn);
+        listElement.appendChild(div);
+        return { name, url };
     }
 
-    function showScheduledSection() {
-        document.getElementById('scheduled-section').style.display = 'block';
-        document.getElementById('schedule-form').style.display = 'flex';
+    function deleteImage(name, listElement) {
+        if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
+
+        const storageRef = storage.ref(`images/${name}`);
+        storageRef.delete().then(() => {
+            const div = document.querySelector(`.image-item[data-name="${name}"], .scheduled-post-item[data-name="${name}"]`);
+            if (div) div.remove();
+
+            if (listElement === scheduledPostsList) {
+                scheduledImages = scheduledImages.filter(img => img.name !== name);
+                removeScheduledImageFromDatabase(name);
+            }
+
+            alert(`Imagem "${name}" excluída com sucesso!`);
+        }).catch((error) => {
+            console.error('Erro ao excluir imagem:', error);
+            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
+        });
     }
 
     function scheduleImages() {
@@ -508,7 +454,6 @@
             alert('Por favor, preencha todos os campos de data e hora.');
             return;
         }
-
         const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
 
@@ -529,7 +474,7 @@
             div.className = 'scheduled-post-item';
             div.dataset.name = image.name;
             const img = document.createElement('img');
-            img.src = image.url;
+            img.src = `data:image/jpeg;base64,${image.base64}`;
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn';
             deleteBtn.innerHTML = '&times;';
@@ -542,10 +487,12 @@
             div.appendChild(periodLabel);
             scheduledPostsList.appendChild(div);
 
-            // Agenda para exibir a imagem no futuro
+            // Agenda para enviar a imagem ao Firebase Storage no horário programado
             setTimeout(() => {
-                addImageToList(image.url, image.name, imageList);
-                alert(`A imagem "${image.name}" foi vinculada automaticamente.`);
+                uploadScheduledImage(image.name, image.base64).then(downloadURL => {
+                    addImageToList(downloadURL, image.name, imageList);
+                    alert(`A imagem "${image.name}" foi vinculada automaticamente.`);
+                });
             }, startTimeMs - Date.now());
 
             // Remove automaticamente após o término do período
@@ -556,6 +503,29 @@
         });
 
         alert('Imagens agendadas com sucesso!');
+    }
+
+    function uploadScheduledImage(name, base64) {
+        return new Promise((resolve, reject) => {
+            const storageRef = storage.ref(`images/${name}`);
+            const uploadTask = storageRef.putString(base64, 'base64', { contentType: 'image/jpeg' });
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log(`Upload progress: ${progress}%`);
+                },
+                (error) => {
+                    console.error('Erro ao fazer upload:', error);
+                    reject(error);
+                },
+                () => {
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        resolve(downloadURL);
+                    });
+                }
+            );
+        });
     }
 
     function saveScheduledImageToDatabase(name, startDateTime, endDateTime) {
@@ -653,3 +623,4 @@
 </script>
 </body>
 </html>
+    
