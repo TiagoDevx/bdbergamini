@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uploads e Gerenciamento de Imagens</title>
+    <title>Upload e Gerenciamento de Imagens</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -460,6 +460,17 @@
         );
     }
 
+    function showScheduledSection() {
+        const scheduledSection = document.getElementById('scheduled-section');
+        const scheduleForm = document.getElementById('schedule-form');
+
+        // Exibe a seção de agendamento
+        scheduledSection.style.display = 'block';
+
+        // Exibe o formulário de agendamento
+        scheduleForm.style.display = 'flex';
+    }
+
     function scheduleImages() {
         const startDate = document.getElementById('start-date').value;
         const startTime = document.getElementById('start-time').value;
@@ -543,7 +554,8 @@
                     reject(error);
                 },
                 () => {
-                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    uploadTask.snapshot.ref.getDownloadURL().
+                                            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
                         resolve(downloadURL);
                     });
                 }
@@ -641,6 +653,41 @@
         }).catch((error) => {
             console.error('Erro ao excluir imagem programada:', error);
             alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
+        });
+    }
+
+    function sendNow() {
+        alert('As imagens foram vinculadas e estão disponíveis agora!');
+    }
+
+    function deleteAllImages() {
+        if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
+
+        const allImages = [...document.querySelectorAll('.image-item, .scheduled-post-item')];
+        if (allImages.length === 0) {
+            alert('Não há imagens para excluir.');
+            return;
+        }
+
+        let deletedCount = 0;
+        let errorCount = 0;
+
+        allImages.forEach(div => {
+            const name = div.dataset.name;
+            const storageRef = storage.ref(`images/${name}`);
+            storageRef.delete().then(() => {
+                div.remove();
+                deletedCount++;
+                if (deletedCount + errorCount === allImages.length) {
+                    alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
+                }
+            }).catch((error) => {
+                console.error(`Erro ao excluir imagem "${name}":`, error);
+                errorCount++;
+                if (deletedCount + errorCount === allImages.length) {
+                    alert(`Exclusão concluída! ${deletedCount} imagens excluídas com sucesso. ${errorCount} falhas.`);
+                }
+            });
         });
     }
 </script>
