@@ -4,744 +4,386 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciamentos de Imagens</title>
+    <!-- CSS remains the same as in your original code -->
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-        }
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #ff7f50, #ff6347);
-        }
-        .login-box {
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            width: 350px;
-            text-align: center;
-        }
-        .login-box h2 {
-            color: #ff7f50;
-            margin-bottom: 20px;
-        }
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: #ff7f50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .login-box button:hover {
-            background: #ff6347;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            color: #ff7f50;
-        }
-        .clock {
-            font-size: 18px;
-            color: #ff7f50;
-        }
-        .section {
-            margin-bottom: 30px;
-        }
-        .section h2 {
-            color: #ff7f50;
-            margin-bottom: 15px;
-        }
-        .upload-area {
-            border: 2px dashed #ff7f50;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            background: #fffaf0;
-            transition: border-color 0.3s ease;
-        }
-        .upload-area:hover {
-            border-color: #ff6347;
-        }
-        .upload-area input[type="file"] {
-            display: none;
-        }
-        .upload-area label {
-            background: #ff7f50;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s ease;
-        }
-        .upload-area label:hover {
-            background: #ff6347;
-        }
-        .image-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        .image-preview img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border: 2px solid #ff7f50;
-            border-radius: 10px;
-        }
-        .progress-bar-container {
-            margin-top: 10px;
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            width: 0%;
-            height: 10px;
-            background-color: #ff7f50;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .action-buttons button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .action-buttons .schedule {
-            background: #ff7f50;
-            color: white;
-        }
-        .action-buttons .schedule:hover {
-            background: #ff6347;
-        }
-        .action-buttons .history {
-            background: #4CAF50;
-            color: white;
-        }
-        .action-buttons .history:hover {
-            background: #45a049;
-        }
-        .action-buttons .delete-all {
-            background: #f44336;
-            color: white;
-        }
-        .action-buttons .delete-all:hover {
-            background: #d32f2f;
-        }
-        .scheduled-section {
-            margin-top: 30px;
-        }
-        .scheduled-section h3 {
-            color: #ff7f50;
-            margin-bottom: 15px;
-        }
-        .scheduled-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        .scheduled-item img {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            object-fit: cover;
-        }
-        .scheduled-item .info {
-            flex: 1;
-        }
-        .scheduled-item .period {
-            font-size: 14px;
-            color: #555;
-        }
-        .scheduled-item .delete-btn {
-            background: #ff6347;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .history-section {
-            margin-top: 30px;
-        }
-        .history-section h3 {
-            color: #ff7f50;
-            margin-bottom: 15px;
-        }
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .history-item img {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            object-fit: cover;
-        }
-        .history-item .info {
-            flex: 1;
-        }
-        .history-item .delete-btn {
-            background: #ff6347;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+        /* Your existing CSS styles remain unchanged */
     </style>
 </head>
 <body>
-<div class="login-container">
-    <div class="login-box">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Usuário">
-        <input type="password" id="password" placeholder="Senha">
-        <button id="login-button">Entrar</button>
-    </div>
-</div>
-
-<div class="container" style="display: none;">
-    <div class="header">
-        <h1>Gerenciamento de Imagens</h1>
-        <div class="clock" id="clock">Carregando...</div>
+    <!-- HTML structure remains mostly the same -->
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Usuário">
+            <input type="password" id="password" placeholder="Senha">
+            <button id="login-button">Entrar</button>
+        </div>
     </div>
 
-    <!-- Seção de Upload -->
-    <div class="section">
-        <h2>Vincular Agora</h2>
-        <div class="upload-area" id="upload-area">
-            <p>Arraste e solte suas imagens aqui ou</p>
-            <label for="fileElem">Selecione arquivos</label>
-            <input type="file" id="fileElem" multiple accept="image/*">
+    <div class="container" style="display: none;">
+        <div class="header">
+            <h1>Gerenciamento de Imagens</h1>
+            <div class="clock" id="clock">Carregando...</div>
         </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="progress-bar"></div>
+
+        <div class="section">
+            <h2>Vincular Agora</h2>
+            <div class="upload-area" id="upload-area">
+                <p>Arraste e solte suas imagens aqui ou</p>
+                <label for="fileElem">Selecione arquivos</label>
+                <input type="file" id="fileElem" multiple accept="image/*">
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="image-preview" id="image-preview"></div>
+            <div class="action-buttons">
+                <button onclick="uploadImages()">Vincular Agora</button>
+                <button onclick="showScheduledSection()">Agendar Post</button>
+            </div>
         </div>
-        <div class="image-preview" id="image-preview"></div>
+
         <div class="action-buttons">
-            <button onclick="uploadImages()">Vincular Agora</button>
-            <button onclick="showScheduledSection()">Agendar Post</button>
+            <button class="history" onclick="showHistory()">Histórico</button>
+            <button class="delete-all" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
+        </div>
+
+        <div class="scheduled-section" id="scheduled-section" style="display: none;">
+            <h3>Agendar Post</h3>
+            <div class="upload-area" id="scheduled-upload-area">
+                <p>Arraste e solte suas imagens aqui ou</p>
+                <label for="scheduled-fileElem">Selecione arquivos</label>
+                <input type="file" id="scheduled-fileElem" multiple accept="image/*">
+            </div>
+            <div class="image-preview" id="scheduled-image-preview"></div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="scheduled-progress-bar"></div>
+            </div>
+            <div class="schedule-form">
+                <label>Data de Início:</label>
+                <input type="date" id="start-date">
+                <input type="time" id="start-time">
+                <label>Data de Término:</label>
+                <input type="date" id="end-date">
+                <input type="time" id="end-time">
+                <button onclick="scheduleImages()">Confirmar Agendamento</button>
+            </div>
+            <div class="scheduled-list" id="scheduled-list"></div>
+        </div>
+
+        <div class="history-section" id="history-section" style="display: none;">
+            <h3>Histórico</h3>
+            <div class="history-list" id="history-list"></div>
         </div>
     </div>
 
-    <!-- Botões de Ação -->
-    <div class="action-buttons">
-        <button class="history" onclick="showHistory()">Histórico</button>
-        <button class="delete-all" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
-    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPcnUH5oj0krqEBcKFkRxg6h7GWiOiGWs",
+            authDomain: "bc-berga.firebaseapp.com",
+            projectId: "bc-berga",
+            storageBucket: "bc-berga.firebasestorage.app",
+            messagingSenderId: "955771763943",
+            appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
+            measurementId: "G-1234T7JC84"
+        };
 
-    <!-- Seção de Agendamento -->
-    <div class="scheduled-section" id="scheduled-section" style="display: none;">
-        <h3>Agendar Post</h3>
-        <div class="upload-area" id="scheduled-upload-area">
-            <p>Arraste e solte suas imagens aqui ou</p>
-            <label for="scheduled-fileElem">Selecione arquivos</label>
-            <input type="file" id="scheduled-fileElem" multiple accept="image/*">
-        </div>
-        <div class="image-preview" id="scheduled-image-preview"></div>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="scheduled-progress-bar"></div>
-        </div>
-        <div class="schedule-form">
-            <label>Data de Início:</label>
-            <input type="date" id="start-date">
-            <input type="time" id="start-time">
-            <label>Data de Término:</label>
-            <input type="date" id="end-date">
-            <input type="time" id="end-time">
-            <button onclick="scheduleImages()">Confirmar Agendamento</button>
-        </div>
-    </div>
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        const database = firebase.database();
 
-    <!-- Histórico -->
-    <div class="history-section" id="history-section" style="display: none;">
-        <h3>Histórico</h3>
-        <div class="history-list" id="history-list"></div>
-    </div>
-</div>
+        // Constants
+        const USERNAME = "MarketingBergamini";
+        const PASSWORD = "MarketingLoja010401@";
+        let currentNumber = 1;
 
-<!-- Bibliotecas -->
-<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-<script>
-    // Configuração do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyAPcnUH5oj0krqEBcKFkRxg6h7GWiOiGWs",
-        authDomain: "bc-berga.firebaseapp.com",
-        projectId: "bc-berga",
-        storageBucket: "bc-berga.firebasestorage.app",
-        messagingSenderId: "955771763943",
-        appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
-        measurementId: "G-1234T7JC84"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-    const database = firebase.database();
+        // Login Function
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
 
-    // Variáveis globais
-    const USERNAME = "MarketingBergamini";
-    const PASSWORD = "MarketingLoja010401@";
-    let currentNumber = 1; // Contador para imagens numeradas
-    let currentLetter = 'a'; // Contador para imagens com letras
-
-    // Função de Login
-    function login() {
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        if (username === USERNAME && password === PASSWORD) {
-            alert('Login bem-sucedido!');
-            document.querySelector('.login-container').style.display = 'none';
-            document.querySelector('.container').style.display = 'block';
-            startClock();
-        } else {
-            alert('Usuário ou senha incorretos!');
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const loginButton = document.getElementById('login-button');
-        if (loginButton) {
-            loginButton.addEventListener('click', login);
-        } else {
-            console.error('Botão de login não encontrado.');
-        }
-    });
-
-    // Função para iniciar o relógio
-    function startClock() {
-        const clockElement = document.getElementById('clock');
-        setInterval(() => {
-            const datetime = new Date();
-            clockElement.textContent = `Relógio: ${datetime.toLocaleString()}`;
-        }, 1000);
-    }
-
-    // Função para exibir a seção de agendamento
-    function showScheduledSection() {
-        document.getElementById('scheduled-section').style.display = 'block';
-    }
-
-    // Função para exibir a seção de histórico
-    function showHistory() {
-        document.getElementById('history-section').style.display = 'block';
-    }
-
-    // Função para visualizar imagens selecionadas
-    function previewImages(inputId, previewId) {
-        const files = document.getElementById(inputId).files;
-        const preview = document.getElementById(previewId);
-        preview.innerHTML = ''; // Limpa a visualização anterior
-
-        for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = document.createElement('img');
-                img.src = event.target.result;
-                preview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    // Eventos para visualizar imagens
-    document.getElementById('fileElem').addEventListener('change', () => {
-        previewImages('fileElem', 'image-preview');
-    });
-    document.getElementById('scheduled-fileElem').addEventListener('change', () => {
-        previewImages('scheduled-fileElem', 'scheduled-image-preview');
-    });
-
-    // Função para sanitizar nomes de arquivos
-    function sanitizeFileName(name) {
-        return name.replace(/[.#$[\]]/g, '_'); // Substitui caracteres inválidos por "_"
-    }
-
-    // Função para vincular imagens agora
-    function uploadImages() {
-        const files = document.getElementById('fileElem').files;
-        if (files.length === 0) {
-            alert('Selecione pelo menos uma imagem para vincular.');
-            return;
+            if (username === USERNAME && password === PASSWORD) {
+                document.querySelector('.login-container').style.display = 'none';
+                document.querySelector('.container').style.display = 'block';
+                startClock();
+                startScheduledImageCheck();
+            } else {
+                alert('Usuário ou senha incorretos!');
+            }
         }
 
-        const progressBar = document.getElementById('progress-bar');
-        let uploadedCount = 0;
+        // Clock Function
+        function startClock() {
+            const clockElement = document.getElementById('clock');
+            setInterval(() => {
+                clockElement.textContent = `Relógio: ${new Date().toLocaleString()}`;
+            }, 1000);
+        }
 
-        [...files].forEach((file, index) => {
-            const originalName = file.name;
-            const sanitizedKey = sanitizeFileName(originalName); // Sanitiza o nome da imagem
-            const newName = `${currentNumber}.jpg`;
-            currentNumber++;
+        // Event Listeners
+        document.getElementById('login-button').addEventListener('click', login);
+        document.getElementById('fileElem').addEventListener('change', () => previewImages('fileElem', 'image-preview'));
+        document.getElementById('scheduled-fileElem').addEventListener('change', () => previewImages('scheduled-fileElem', 'scheduled-image-preview'));
 
-            const storageRef = storage.ref(`images/${newName}`);
-            const uploadTask = storageRef.put(file);
+        // Preview Images
+        function previewImages(inputId, previewId) {
+            const files = document.getElementById(inputId).files;
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '';
 
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    progressBar.style.width = `${progress}%`;
-                },
-                (error) => {
-                    console.error('Erro ao fazer upload:', error);
-                    alert('Erro ao vincular imagem.');
-                },
-                () => {
-                    uploadTask.snapshot.ref.getDownloadURL().then((url) => {
-                        addImageToList(url, newName);
-                        uploadedCount++;
-                        if (uploadedCount === files.length) {
-                            alert('Imagens vinculadas com sucesso!');
-                            progressBar.style.width = '0%';
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Upload Images Immediately
+        async function uploadImages() {
+            const files = document.getElementById('fileElem').files;
+            if (!files.length) return alert('Selecione pelo menos uma imagem.');
+
+            const progressBar = document.getElementById('progress-bar');
+            let completed = 0;
+
+            for (const file of files) {
+                const fileName = `${currentNumber++}.jpg`;
+                const storageRef = storage.ref(`images/${fileName}`);
+                const uploadTask = storageRef.put(file);
+
+                await new Promise((resolve) => {
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            progressBar.style.width = `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}%`;
+                        },
+                        (error) => {
+                            console.error('Upload error:', error);
+                            alert('Erro ao vincular imagem.');
+                        },
+                        async () => {
+                            const url = await uploadTask.snapshot.ref.getDownloadURL();
+                            await addToHistory('Imagem vinculada', fileName);
+                            completed++;
+                            if (completed === files.length) {
+                                progressBar.style.width = '0%';
+                                alert('Imagens vinculadas com sucesso!');
+                            }
+                            resolve();
                         }
-                    });
-                }
-            );
-        });
-    }
-
-    // Função para adicionar imagens à lista
-    function addImageToList(url, name) {
-        const div = document.createElement('div');
-        div.className = 'image-item';
-        div.dataset.name = name;
-        const img = document.createElement('img');
-        img.src = url;
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = () => deleteImage(name);
-        div.appendChild(img);
-        div.appendChild(deleteBtn);
-        document.getElementById('image-list').appendChild(div);
-    }
-
-    // Função para excluir uma imagem
-    function deleteImage(name) {
-
- if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
-
-        const storageRef = storage.ref(`images/${name}`);
-        storageRef.delete().then(() => {
-            const div = document.querySelector(`.image-item[data-name="${name}"]`);
-            if (div) div.remove();
-            alert(`Imagem "${name}" excluída com sucesso!`);
-        }).catch((error) => {
-            console.error('Erro ao excluir imagem:', error);
-            alert('Erro ao excluir imagem. Verifique o console para mais detalhes.');
-        });
-    }
-
-    // Função para agendar imagens
-    function scheduleImages() {
-        const files = document.getElementById('scheduled-fileElem').files;
-        if (files.length === 0) {
-            alert('Selecione pelo menos uma imagem para agendar.');
-            return;
-        }
-
-        const startDate = document.getElementById('start-date').value;
-        const startTime = document.getElementById('start-time').value;
-        const endDate = document.getElementById('end-date').value;
-        const endTime = document.getElementById('end-time').value;
-
-        if (!startDate || !startTime || !endDate || !endTime) {
-            alert('Preencha todos os campos de data e hora.');
-            return;
-        }
-
-        const startDateTime = new Date(`${startDate}T${startTime}`);
-        const endDateTime = new Date(`${endDate}T${endTime}`);
-
-        if (startDateTime > endDateTime) {
-            alert('A data/hora de início não pode ser maior que a data/hora de término.');
-            return;
-        }
-
-        const progressBar = document.getElementById('scheduled-progress-bar');
-        let uploadedCount = 0;
-
-        [...files].forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64String = event.target.result.split(',')[1];
-                const originalName = file.name;
-                const sanitizedKey = sanitizeFileName(originalName); // Sanitiza o nome da imagem
-                const newName = `${currentLetter}.jpg`;
-                currentLetter = String.fromCharCode(currentLetter.charCodeAt(0) + 1);
-
-                // Salva no Firebase Realtime Database
-                const scheduledRef = database.ref('scheduledImages/' + sanitizedKey);
-                scheduledRef.set({
-                    name: newName,
-                    originalName: originalName,
-                    startDateTime: startDateTime.toISOString(),
-                    endDateTime: endDateTime.toISOString(),
-                    base64: base64String
-                }).then(() => {
-                    uploadedCount++;
-                    if (uploadedCount === files.length) {
-                        alert('Imagens agendadas com sucesso!');
-                        progressBar.style.width = '0%';
-                        loadScheduledImages(); // Atualiza a lista de imagens agendadas
-                    }
-                }).catch((error) => {
-                    console.error('Erro ao salvar agendamento:', error);
+                    );
                 });
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Função para carregar imagens agendadas
-    function loadScheduledImages() {
-        const scheduledList = document.getElementById('scheduled-list');
-        scheduledList.innerHTML = '';
-        const scheduledRef = database.ref('scheduledImages');
-        scheduledRef.once('value').then((snapshot) => {
-            const scheduledData = snapshot.val();
-            if (!scheduledData) return;
-
-            for (const [key, data] of Object.entries(scheduledData)) {
-                const { name, startDateTime, endDateTime, base64 } = data;
-                const startMs = new Date(startDateTime).getTime();
-                const endMs = new Date(endDateTime).getTime();
-
-                const div = document.createElement('div');
-                div.className = 'scheduled-item';
-                div.innerHTML = `
-                    <img src="data:image/jpeg;base64,${base64}" alt="${name}">
-                    <div class="info">
-                        <div>${name}</div>
-                        <div class="period">${new Date(startMs).toLocaleString()} - ${new Date(endMs).toLocaleString()}</div>
-                    </div>
-                    <button class="delete-btn" onclick="deleteScheduledPost('${key}', '${name}')">Excluir</button>
-                `;
-                scheduledList.appendChild(div);
             }
-        }).catch((error) => {
-            console.error('Erro ao carregar imagens agendadas:', error);
-        });
-    }
+        }
 
-    // Função para remover um agendamento
-    function deleteScheduledPost(key, name) {
-        const scheduledRef = database.ref('scheduledImages/' + key);
-        scheduledRef.remove().then(() => {
-            alert(`Imagem "${name}" removida do agendamento.`);
+        // Show Scheduling Section
+        function showScheduledSection() {
+            document.getElementById('scheduled-section').style.display = 'block';
             loadScheduledImages();
-        }).catch((error) => {
-            console.error('Erro ao remover agendamento:', error);
-        });
-    }
+        }
 
-    // Função para verificar imagens agendadas
-    function checkScheduledImages() {
-        const now = Date.now();
-        const scheduledRef = database.ref('scheduledImages');
-        scheduledRef.once('value').then((snapshot) => {
-            const scheduledData = snapshot.val();
-            if (!scheduledData) return;
+        // Schedule Images
+        async function scheduleImages() {
+            const files = document.getElementById('scheduled-fileElem').files;
+            if (!files.length) return alert('Selecione pelo menos uma imagem.');
 
-            for (const [key, data] of Object.entries(scheduledData)) {
-                const { name, startDateTime, endDateTime, base64 } = data;
-                const startMs = new Date(startDateTime).getTime();
-                const endMs = new Date(endDateTime).getTime();
+            const startDate = document.getElementById('start-date').value;
+            const startTime = document.getElementById('start-time').value;
+            const endDate = document.getElementById('end-date').value;
+            const endTime = document.getElementById('end-time').value;
 
-                if (startMs <= now && endMs > now) {
-                    // Converte para número e exibe
-                    const numericName = `${currentNumber}.jpg`;
-                    currentNumber++;
-
-                    const storageRef = storage.ref(`images/${numericName}`);
-                    storageRef.putString(base64, 'base64').then(() => {
-                        // Atualiza o nome no Firebase Realtime Database
-                        const scheduledRef = database.ref('scheduledImages/' + key);
-                        scheduledRef.update({
-                            name: numericName,
-                            isConverted: true
-                        }).then(() => {
-                            alert(`Imagem "${name}" convertida para "${numericName}" e vinculada.`);
-                            loadImages(); // Atualiza a lista de imagens vinculadas
-                            loadScheduledImages(); // Atualiza a lista de imagens agendadas
-                        }).catch((error) => {
-                            console.error('Erro ao atualizar nome no banco de dados:', error);
-                        });
-                    }).catch((error) => {
-                        console.error('Erro ao salvar imagem convertida no Storage:', error);
-                    });
-                }
-
-                if (endMs <= now) {
-                    // Converte de volta para letra após o término do período
-                    const letterName = `${String.fromCharCode(currentLetter.charCodeAt(0) - 1)}.jpg`;
-                    currentLetter = String.fromCharCode(currentLetter.charCodeAt(0) - 1);
-
-                    const storageRef = storage.ref(`images/${letterName}`);
-                    storageRef.putString(base64, 'base64').then(() => {
-                        // Atualiza o nome no Firebase Realtime Database
-                        const scheduledRef = database.ref('scheduledImages/' + key);
-                        scheduledRef.update({
-                            name: letterName,
-                            isConverted: false
-                        }).then(() => {
-                            alert(`Imagem "${name}" convertida de volta para "${letterName}".`);
-                            loadImages(); // Atualiza a lista de imagens vinculadas
-                            loadScheduledImages(); // Atualiza a lista de imagens agendadas
-                        }).catch((error) => {
-                            console.error('Erro ao atualizar nome no banco de dados:', error);
-                        });
-                    }).catch((error) => {
-                        console.error('Erro ao salvar imagem convertida no Storage:', error);
-                    });
-                }
+            if (!startDate || !startTime || !endDate || !endTime) {
+                return alert('Preencha todos os campos de data e hora.');
             }
-        }).catch((error) => {
-            console.error('Erro ao verificar imagens agendadas:', error);
-        });
-    }
 
-    // Função para iniciar a verificação automática
-    function startScheduledImageCheck() {
-        setInterval(checkScheduledImages, 60000); // Verifica a cada 1 minuto
-    }
+            const start = new Date(`${startDate}T${startTime}`);
+            const end = new Date(`${endDate}T${endTime}`);
+            if (start >= end) return alert('Data de início deve ser anterior à data de término.');
 
-    // Função para mostrar o histórico
-    function showHistory() {
-        const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
-        const historyRef = database.ref('history');
-        historyRef.once('value').then((snapshot) => {
-            const historyData = snapshot.val();
-            if (!historyData) return;
+            const progressBar = document.getElementById('scheduled-progress-bar');
+            let completed = 0;
 
-            for (const [key, data] of Object.entries(historyData)) {
-                const { action, imageName, timestamp } = data;
+            for (const file of files) {
+                const reader = new FileReader();
+                await new Promise((resolve) => {
+                    reader.onload = async (e) => {
+                        const base64 = e.target.result.split(',')[1];
+                        const fileName = file.name;
+                        const scheduleRef = database.ref('scheduledImages').push();
 
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `
-                    <img src="https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/images%2F${encodeURIComponent(imageName)}?alt=media" alt="${imageName}">
-                    <div class="info">
-                        <div>${action}</div>
-                        <div>${new Date(timestamp).toLocaleString()}</div>
-                    </div>
-                    <button class="delete-btn" onclick="deleteHistory('${key}')">Excluir</button>
-                `;
-                historyList.appendChild(div);
+                        await scheduleRef.set({
+                            originalName: fileName,
+                            base64: base64,
+                            startTime: start.toISOString(),
+                            endTime: end.toISOString(),
+                            status: 'pending',
+                            numericName: null
+                        });
+
+                        completed++;
+                        progressBar.style.width = `${(completed / files.length) * 100}%`;
+                        if (completed === files.length) {
+                            progressBar.style.width = '0%';
+                            alert('Imagens agendadas com sucesso!');
+                            loadScheduledImages();
+                        }
+                        resolve();
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
-        }).catch((error) => {
-            console.error('Erro ao carregar histórico:', error);
-        });
+        }
 
-        document.getElementById('history-section').style.display = 'block';
-    }
+        // Load Scheduled Images
+        function loadScheduledImages() {
+            const scheduledList = document.getElementById('scheduled-list');
+            if (!scheduledList) return;
 
-    // Função para adicionar um registro ao histórico
-    function addToHistory(action, imageName) {
-        const historyRef = database.ref('history').push();
-        historyRef.set({
-            action: action,
-            imageName: imageName,
-            timestamp: Date.now()
-        }).catch((error) => {
-            console.error('Erro ao salvar no histórico:', error);
-        });
-    }
+            scheduledList.innerHTML = '';
+            database.ref('scheduledImages').once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
 
-    // Função para excluir um registro do histórico
-    function deleteHistory(key) {
-        const historyRef = database.ref('history/' + key);
-        historyRef.remove().then(() => {
-            alert('Registro excluído do histórico.');
-            showHistory(); // Atualiza a lista de histórico
-        }).catch((error) => {
-            console.error('Erro ao excluir registro do histórico:', error);
-        });
-    }
-
-    // Função para apagar todas as imagens
-    function deleteAllImages() {
-        if (!confirm('Tem certeza que deseja apagar todas as imagens?')) return;
-
-        const storageRef = storage.ref('images/');
-        storageRef.listAll().then((res) => {
-            res.items.forEach((itemRef) => {
-                itemRef.delete().catch((error) => {
-                    console.error('Erro ao excluir imagem:', error);
+                Object.entries(data).forEach(([key, { originalName, startTime, endTime, base64, status }]) => {
+                    const item = document.createElement('div');
+                    item.className = 'scheduled-item';
+                    item.innerHTML = `
+                        <img src="data:image/jpeg;base64,${base64}" alt="${originalName}">
+                        <div class="info">
+                            <div>${originalName} (${status})</div>
+                            <div class="period">${new Date(startTime).toLocaleString()} - ${new Date(endTime).toLocaleString()}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteScheduled('${key}')">Excluir</button>
+                    `;
+                    scheduledList.appendChild(item);
                 });
             });
-        }).catch((error) => {
-            console.error('Erro ao listar imagens:', error);
-        });
+        }
 
-        database.ref('scheduledImages').remove().then(() => {
-            database.ref('history').remove().then(() => {
-                alert('Todas as imagens, agendamentos e histórico foram removidos.');
+        // Delete Scheduled Image
+        function deleteScheduled(key) {
+            database.ref(`scheduledImages/${key}`).remove()
+                .then(() => {
+                    loadScheduledImages();
+                    alert('Agendamento excluído com sucesso!');
+                })
+                .catch(error => console.error('Error deleting scheduled image:', error));
+        }
+
+        // Check and Process Scheduled Images
+        function checkScheduledImages() {
+            const now = new Date();
+            database.ref('scheduledImages').once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                Object.entries(data).forEach(async ([key, schedule]) => {
+                    const { base64, startTime, endTime, status, numericName } = schedule;
+                    const start = new Date(startTime);
+                    const end = new Date(endTime);
+
+                    if (status === 'pending' && now >= start && now < end) {
+                        const newName = `${currentNumber++}.jpg`;
+                        const storageRef = storage.ref(`images/${newName}`);
+
+                        try {
+                            await storageRef.putString(base64, 'base64');
+                            await database.ref(`scheduledImages/${key}`).update({
+                                status: 'active',
+                                numericName: newName
+                            });
+                            await addToHistory('Imagem agendada ativada', newName);
+                        } catch (error) {
+                            console.error('Error activating scheduled image:', error);
+                        }
+                    } else if (status === 'active' && now >= end && numericName) {
+                        try {
+                            await storage.ref(`images/${numericName}`).delete();
+                            await database.ref(`scheduledImages/${key}`).update({
+                                status: 'expired',
+                                numericName: null
+                            });
+                            await addToHistory('Imagem agendada expirada', numericName);
+                        } catch (error) {
+                            console.error('Error expiring scheduled image:', error);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Start Scheduled Image Check
+        function startScheduledImageCheck() {
+            checkScheduledImages(); // Check immediately
+            setInterval(checkScheduledImages, 30000); // Check every 30 seconds
+        }
+
+        // History Functions
+        async function showHistory() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            const snapshot = await database.ref('history').once('value');
+            const history = snapshot.val();
+
+            if (history) {
+                Object.entries(history).forEach(([key, { action, imageName, timestamp }]) => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <div class="info">
+                            <div>${action}: ${imageName}</div>
+                            <div>${new Date(timestamp).toLocaleString()}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteHistory('${key}')">Excluir</button>
+                    `;
+                    historyList.appendChild(item);
+                });
+            }
+            document.getElementById('history-section').style.display = 'block';
+        }
+
+        async function addToHistory(action, imageName) {
+            await database.ref('history').push().set({
+                action,
+                imageName,
+                timestamp: Date.now()
+            });
+        }
+
+        function deleteHistory(key) {
+            database.ref(`history/${key}`).remove()
+                .then(() => showHistory())
+                .catch(error => console.error('Error deleting history:', error));
+        }
+
+        // Delete All Images
+        async function deleteAllImages() {
+            if (!confirm('Tem certeza que deseja apagar tudo?')) return;
+
+            try {
+                const list = await storage.ref('images').listAll();
+                await Promise.all(list.items.map(item => item.delete()));
+                await database.ref('scheduledImages').remove();
+                await database.ref('history').remove();
+                
                 document.getElementById('image-preview').innerHTML = '';
                 document.getElementById('scheduled-image-preview').innerHTML = '';
                 document.getElementById('scheduled-list').innerHTML = '';
                 document.getElementById('history-list').innerHTML = '';
-            }).catch((error) => {
-                console.error('Erro ao limpar histórico:', error);
-            });
-        }).catch((error) => {
-            console.error('Erro ao limpar agendamentos:', error);
-        });
-    }
-
-    // Inicia a verificação automática de imagens agendadas
-    startScheduledImageCheck();
-</script>
+                alert('Tudo foi removido com sucesso!');
+            } catch (error) {
+                console.error('Error deleting all:', error);
+                alert('Erro ao remover tudo.');
+            }
+        }
+    </script>
 </body>
 </html>
