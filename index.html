@@ -3,77 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamentos de Imagens</title>
-    <!-- CSS remains the same as in your original code -->
+    <title>Gerenciamento de Imagens</title>
     <style>
-        /* Your existing CSS styles remain unchanged */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: #1e3c72;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .login-box input:focus {
+            border-color: #1e3c72;
+            outline: none;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-box button:hover {
+            background: #2a5298;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 28px;
+        }
+
+        .clock {
+            color: #2a5298;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Card Sections */
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .upload-area {
+            border: 2px dashed #2a5298;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #1e3c72;
+            background: #f8fafc;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-area p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .upload-area label {
+            background: #2a5298;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .upload-area label:hover {
+            background: #1e3c72;
+        }
+
+        .preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .preview img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2a5298;
+        }
+
+        .btn-secondary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        /* Schedule Form */
+        .schedule-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .schedule-form label {
+            color: #1e3c72;
+            font-weight: 500;
+        }
+
+        .schedule-form input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Lists */
+        .list {
+            margin-top: 20px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .list-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .list-item .info {
+            flex: 1;
+        }
+
+        .list-item .status {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .list-item .btn-danger {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <!-- HTML structure remains mostly the same -->
     <div class="login-container">
         <div class="login-box">
             <h2>Login</h2>
             <input type="text" id="username" placeholder="Usuário">
             <input type="password" id="password" placeholder="Senha">
-            <button id="login-button">Entrar</button>
+            <button class="btn btn-primary" id="login-btn">Entrar</button>
         </div>
     </div>
 
-    <div class="container" style="display: none;">
+    <div class="container">
         <div class="header">
             <h1>Gerenciamento de Imagens</h1>
             <div class="clock" id="clock">Carregando...</div>
         </div>
 
-        <div class="section">
+        <!-- Vincular Agora -->
+        <div class="card">
             <h2>Vincular Agora</h2>
-            <div class="upload-area" id="upload-area">
-                <p>Arraste e solte suas imagens aqui ou</p>
-                <label for="fileElem">Selecione arquivos</label>
-                <input type="file" id="fileElem" multiple accept="image/*">
+            <div class="upload-area" id="immediate-upload">
+                <p>Arraste e solte ou clique para selecionar imagens</p>
+                <label for="immediate-files">Selecionar Imagens</label>
+                <input type="file" id="immediate-files" multiple accept="image/*">
             </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progress-bar"></div>
-            </div>
-            <div class="image-preview" id="image-preview"></div>
-            <div class="action-buttons">
-                <button onclick="uploadImages()">Vincular Agora</button>
-                <button onclick="showScheduledSection()">Agendar Post</button>
+            <div class="preview" id="immediate-preview"></div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="uploadNow()">Vincular Agora</button>
             </div>
         </div>
 
-        <div class="action-buttons">
-            <button class="history" onclick="showHistory()">Histórico</button>
-            <button class="delete-all" onclick="deleteAllImages()">Apagar Todas as Imagens</button>
-        </div>
-
-        <div class="scheduled-section" id="scheduled-section" style="display: none;">
-            <h3>Agendar Post</h3>
-            <div class="upload-area" id="scheduled-upload-area">
-                <p>Arraste e solte suas imagens aqui ou</p>
-                <label for="scheduled-fileElem">Selecione arquivos</label>
-                <input type="file" id="scheduled-fileElem" multiple accept="image/*">
+        <!-- Agendar -->
+        <div class="card">
+            <h2>Agendar Publicação</h2>
+            <div class="upload-area" id="schedule-upload">
+                <p>Arraste e solte ou clique para selecionar imagens</p>
+                <label for="schedule-files">Selecionar Imagens</label>
+                <input type="file" id="schedule-files" multiple accept="image/*">
             </div>
-            <div class="image-preview" id="scheduled-image-preview"></div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="scheduled-progress-bar"></div>
-            </div>
+            <div class="preview" id="schedule-preview"></div>
             <div class="schedule-form">
                 <label>Data de Início:</label>
-                <input type="date" id="start-date">
-                <input type="time" id="start-time">
+                <div>
+                    <input type="date" id="start-date">
+                    <input type="time" id="start-time">
+                </div>
                 <label>Data de Término:</label>
-                <input type="date" id="end-date">
-                <input type="time" id="end-time">
-                <button onclick="scheduleImages()">Confirmar Agendamento</button>
+                <div>
+                    <input type="date" id="end-date">
+                    <input type="time" id="end-time">
+                </div>
             </div>
-            <div class="scheduled-list" id="scheduled-list"></div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="scheduleUpload()">Agendar</button>
+            </div>
+            <div class="list" id="scheduled-list"></div>
         </div>
 
-        <div class="history-section" id="history-section" style="display: none;">
-            <h3>Histórico</h3>
-            <div class="history-list" id="history-list"></div>
+        <!-- Ações -->
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="showHistory()">Histórico e Ativos</button>
+            <button class="btn btn-danger" onclick="deleteAll()">Apagar Tudo</button>
+        </div>
+
+        <!-- Histórico e Ativos -->
+        <div class="card" id="history-section" style="display: none;">
+            <h2>Histórico e Imagens Ativas</h2>
+            <div class="list" id="active-list"></div>
+            <div class="list" id="pending-list"></div>
         </div>
     </div>
 
@@ -81,29 +346,28 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <script>
-        // Firebase Configuration
+        // Firebase Config
         const firebaseConfig = {
-            apiKey: "AIzaSyAPcnUH5oj0krqEBcKFkRxg6h7GWiOiGWs",
-            authDomain: "bc-berga.firebaseapp.com",
-            projectId: "bc-berga",
-            storageBucket: "bc-berga.firebasestorage.app",
-            messagingSenderId: "955771763943",
-            appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
-            measurementId: "G-1234T7JC84"
+            apiKey: "Sua-API-Key",
+            authDomain: "Seu-Dominio",
+            projectId: "Seu-Projeto",
+            storageBucket: "Seu-Bucket",
+            messagingSenderId: "Seu-ID",
+            appId: "Seu-App-ID",
+            measurementId: "Sua-Medicao"
         };
 
-        // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const storage = firebase.storage();
-        const database = firebase.database();
+        const db = firebase.database();
 
         // Constants
         const USERNAME = "MarketingBergamini";
         const PASSWORD = "MarketingLoja010401@";
-        let currentNumber = 1;
+        let imageCounter = 1;
 
-        // Login Function
-        function login() {
+        // Login
+        document.getElementById('login-btn').addEventListener('click', () => {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
 
@@ -111,24 +375,19 @@
                 document.querySelector('.login-container').style.display = 'none';
                 document.querySelector('.container').style.display = 'block';
                 startClock();
-                startScheduledImageCheck();
+                startScheduler();
             } else {
-                alert('Usuário ou senha incorretos!');
+                alert('Credenciais inválidas!');
             }
-        }
+        });
 
-        // Clock Function
+        // Clock
         function startClock() {
-            const clockElement = document.getElementById('clock');
+            const clock = document.getElementById('clock');
             setInterval(() => {
-                clockElement.textContent = `Relógio: ${new Date().toLocaleString()}`;
+                clock.textContent = new Date().toLocaleString('pt-BR');
             }, 1000);
         }
-
-        // Event Listeners
-        document.getElementById('login-button').addEventListener('click', login);
-        document.getElementById('fileElem').addEventListener('change', () => previewImages('fileElem', 'image-preview'));
-        document.getElementById('scheduled-fileElem').addEventListener('change', () => previewImages('scheduled-fileElem', 'scheduled-image-preview'));
 
         // Preview Images
         function previewImages(inputId, previewId) {
@@ -147,53 +406,39 @@
             }
         }
 
-        // Upload Images Immediately
-        async function uploadImages() {
-            const files = document.getElementById('fileElem').files;
-            if (!files.length) return alert('Selecione pelo menos uma imagem.');
+        document.getElementById('immediate-files').addEventListener('change', () => previewImages('immediate-files', 'immediate-preview'));
+        document.getElementById('schedule-files').addEventListener('change', () => previewImages('schedule-files', 'schedule-preview'));
 
-            const progressBar = document.getElementById('progress-bar');
-            let completed = 0;
+        // Vincular Agora
+        async function uploadNow() {
+            const files = document.getElementById('immediate-files').files;
+            if (!files.length) return alert('Selecione pelo menos uma imagem!');
 
             for (const file of files) {
-                const fileName = `${currentNumber++}.jpg`;
-                const storageRef = storage.ref(`images/${fileName}`);
-                const uploadTask = storageRef.put(file);
+                const fileName = `${imageCounter++}.jpg`;
+                const ref = storage.ref(`images/${fileName}`);
 
-                await new Promise((resolve) => {
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            progressBar.style.width = `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}%`;
-                        },
-                        (error) => {
-                            console.error('Upload error:', error);
-                            alert('Erro ao vincular imagem.');
-                        },
-                        async () => {
-                            const url = await uploadTask.snapshot.ref.getDownloadURL();
-                            await addToHistory('Imagem vinculada', fileName);
-                            completed++;
-                            if (completed === files.length) {
-                                progressBar.style.width = '0%';
-                                alert('Imagens vinculadas com sucesso!');
-                            }
-                            resolve();
-                        }
-                    );
-                });
+                try {
+                    await ref.put(file);
+                    await db.ref('history').push().set({
+                        action: 'Vinculada',
+                        name: fileName,
+                        timestamp: Date.now()
+                    });
+                } catch (error) {
+                    console.error('Erro ao vincular:', error);
+                    alert('Erro ao vincular imagem!');
+                }
             }
+            alert('Imagens vinculadas com sucesso!');
+            document.getElementById('immediate-files').value = '';
+            document.getElementById('immediate-preview').innerHTML = '';
         }
 
-        // Show Scheduling Section
-        function showScheduledSection() {
-            document.getElementById('scheduled-section').style.display = 'block';
-            loadScheduledImages();
-        }
-
-        // Schedule Images
-        async function scheduleImages() {
-            const files = document.getElementById('scheduled-fileElem').files;
-            if (!files.length) return alert('Selecione pelo menos uma imagem.');
+        // Agendar
+        async function scheduleUpload() {
+            const files = document.getElementById('schedule-files').files;
+            if (!files.length) return alert('Selecione pelo menos uma imagem!');
 
             const startDate = document.getElementById('start-date').value;
             const startTime = document.getElementById('start-time').value;
@@ -201,188 +446,163 @@
             const endTime = document.getElementById('end-time').value;
 
             if (!startDate || !startTime || !endDate || !endTime) {
-                return alert('Preencha todos os campos de data e hora.');
+                return alert('Preencha todas as datas e horários!');
             }
 
             const start = new Date(`${startDate}T${startTime}`);
             const end = new Date(`${endDate}T${endTime}`);
-            if (start >= end) return alert('Data de início deve ser anterior à data de término.');
-
-            const progressBar = document.getElementById('scheduled-progress-bar');
-            let completed = 0;
+            if (start >= end) return alert('O início deve ser antes do término!');
 
             for (const file of files) {
                 const reader = new FileReader();
                 await new Promise((resolve) => {
                     reader.onload = async (e) => {
                         const base64 = e.target.result.split(',')[1];
-                        const fileName = file.name;
-                        const scheduleRef = database.ref('scheduledImages').push();
-
-                        await scheduleRef.set({
-                            originalName: fileName,
-                            base64: base64,
-                            startTime: start.toISOString(),
-                            endTime: end.toISOString(),
+                        const ref = db.ref('scheduled').push();
+                        await ref.set({
+                            name: file.name,
+                            base64,
+                            start: start.toISOString(),
+                            end: end.toISOString(),
                             status: 'pending',
-                            numericName: null
+                            storageName: null
                         });
-
-                        completed++;
-                        progressBar.style.width = `${(completed / files.length) * 100}%`;
-                        if (completed === files.length) {
-                            progressBar.style.width = '0%';
-                            alert('Imagens agendadas com sucesso!');
-                            loadScheduledImages();
-                        }
                         resolve();
                     };
                     reader.readAsDataURL(file);
                 });
             }
+            alert('Imagens agendadas com sucesso!');
+            loadScheduled();
+            document.getElementById('schedule-files').value = '';
+            document.getElementById('schedule-preview').innerHTML = '';
         }
 
-        // Load Scheduled Images
-        function loadScheduledImages() {
-            const scheduledList = document.getElementById('scheduled-list');
-            if (!scheduledList) return;
+        // Load Scheduled
+        function loadScheduled() {
+            const list = document.getElementById('scheduled-list');
+            list.innerHTML = '';
 
-            scheduledList.innerHTML = '';
-            database.ref('scheduledImages').once('value', (snapshot) => {
+            db.ref('scheduled').once('value', (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
 
-                Object.entries(data).forEach(([key, { originalName, startTime, endTime, base64, status }]) => {
+                Object.entries(data).forEach(([key, { name, start, end, status }]) => {
                     const item = document.createElement('div');
-                    item.className = 'scheduled-item';
+                    item.className = 'list-item';
                     item.innerHTML = `
-                        <img src="data:image/jpeg;base64,${base64}" alt="${originalName}">
                         <div class="info">
-                            <div>${originalName} (${status})</div>
-                            <div class="period">${new Date(startTime).toLocaleString()} - ${new Date(endTime).toLocaleString()}</div>
+                            <div>${name} (${status})</div>
+                            <div class="status">${new Date(start).toLocaleString('pt-BR')} - ${new Date(end).toLocaleString('pt-BR')}</div>
                         </div>
-                        <button class="delete-btn" onclick="deleteScheduled('${key}')">Excluir</button>
+                        <button class="btn btn-danger" onclick="deleteScheduled('${key}')">Excluir</button>
                     `;
-                    scheduledList.appendChild(item);
+                    list.appendChild(item);
                 });
             });
         }
 
-        // Delete Scheduled Image
-        function deleteScheduled(key) {
-            database.ref(`scheduledImages/${key}`).remove()
-                .then(() => {
-                    loadScheduledImages();
-                    alert('Agendamento excluído com sucesso!');
-                })
-                .catch(error => console.error('Error deleting scheduled image:', error));
+        // Delete Scheduled
+        async function deleteScheduled(key) {
+            await db.ref(`scheduled/${key}`).remove();
+            loadScheduled();
+            alert('Agendamento excluído!');
         }
 
-        // Check and Process Scheduled Images
-        function checkScheduledImages() {
-            const now = new Date();
-            database.ref('scheduledImages').once('value', (snapshot) => {
-                const data = snapshot.val();
+        // Scheduler
+        function startScheduler() {
+            setInterval(async () => {
+                const now = new Date();
+                const scheduled = await db.ref('scheduled').once('value');
+                const data = scheduled.val();
                 if (!data) return;
 
-                Object.entries(data).forEach(async ([key, schedule]) => {
-                    const { base64, startTime, endTime, status, numericName } = schedule;
-                    const start = new Date(startTime);
-                    const end = new Date(endTime);
+                for (const [key, { base64, start, end, status, storageName }] of Object.entries(data)) {
+                    const startTime = new Date(start);
+                    const endTime = new Date(end);
 
-                    if (status === 'pending' && now >= start && now < end) {
-                        const newName = `${currentNumber++}.jpg`;
-                        const storageRef = storage.ref(`images/${newName}`);
-
-                        try {
-                            await storageRef.putString(base64, 'base64');
-                            await database.ref(`scheduledImages/${key}`).update({
-                                status: 'active',
-                                numericName: newName
-                            });
-                            await addToHistory('Imagem agendada ativada', newName);
-                        } catch (error) {
-                            console.error('Error activating scheduled image:', error);
-                        }
-                    } else if (status === 'active' && now >= end && numericName) {
-                        try {
-                            await storage.ref(`images/${numericName}`).delete();
-                            await database.ref(`scheduledImages/${key}`).update({
-                                status: 'expired',
-                                numericName: null
-                            });
-                            await addToHistory('Imagem agendada expirada', numericName);
-                        } catch (error) {
-                            console.error('Error expiring scheduled image:', error);
-                        }
+                    if (status === 'pending' && now >= startTime && now < endTime) {
+                        const fileName = `${imageCounter++}.jpg`;
+                        await storage.ref(`images/${fileName}`).putString(base64, 'base64');
+                        await db.ref(`scheduled/${key}`).update({ status: 'active', storageName: fileName });
+                        await db.ref('history').push().set({
+                            action: 'Ativada',
+                            name: fileName,
+                            timestamp: Date.now()
+                        });
+                    } else if (status === 'active' && now >= endTime && storageName) {
+                        await storage.ref(`images/${storageName}`).delete();
+                        await db.ref(`scheduled/${key}`).update({ status: 'expired', storageName: null });
+                        await db.ref('history').push().set({
+                            action: 'Expirada',
+                            name: storageName,
+                            timestamp: Date.now()
+                        });
                     }
-                });
-            });
+                }
+            }, 30000); // Verifica a cada 30 segundos
         }
 
-        // Start Scheduled Image Check
-        function startScheduledImageCheck() {
-            checkScheduledImages(); // Check immediately
-            setInterval(checkScheduledImages, 30000); // Check every 30 seconds
-        }
-
-        // History Functions
+        // History and Active
         async function showHistory() {
-            const historyList = document.getElementById('history-list');
-            historyList.innerHTML = '';
-            const snapshot = await database.ref('history').once('value');
-            const history = snapshot.val();
+            const activeList = document.getElementById('active-list');
+            const pendingList = document.getElementById('pending-list');
+            activeList.innerHTML = '<h3>Imagens Ativas</h3>';
+            pendingList.innerHTML = '<h3>Agendamentos Pendentes</h3>';
 
-            if (history) {
-                Object.entries(history).forEach(([key, { action, imageName, timestamp }]) => {
+            // Imagens Ativas
+            const activeSnapshot = await db.ref('scheduled').orderByChild('status').equalTo('active').once('value');
+            const activeData = activeSnapshot.val();
+            if (activeData) {
+                for (const [key, { name, storageName, start, end }] of Object.entries(activeData)) {
+                    const url = await storage.ref(`images/${storageName}`).getDownloadURL();
                     const item = document.createElement('div');
-                    item.className = 'history-item';
+                    item.className = 'list-item';
+                    item.innerHTML = `
+                        <img src="${url}" alt="${name}">
+                        <div class="info">
+                            <div>${name}</div>
+                            <div class="status">Ativa até ${new Date(end).toLocaleString('pt-BR')}</div>
+                        </div>
+                    `;
+                    activeList.appendChild(item);
+                }
+            }
+
+            // Agendamentos Pendentes
+            const pendingSnapshot = await db.ref('scheduled').orderByChild('status').equalTo('pending').once('value');
+            const pendingData = pendingSnapshot.val();
+            if (pendingData) {
+                for (const [key, { name, start, end }] of Object.entries(pendingData)) {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
                     item.innerHTML = `
                         <div class="info">
-                            <div>${action}: ${imageName}</div>
-                            <div>${new Date(timestamp).toLocaleString()}</div>
+                            <div>${name}</div>
+                            <div class="status">Inicia em ${new Date(start).toLocaleString('pt-BR')}</div>
                         </div>
-                        <button class="delete-btn" onclick="deleteHistory('${key}')">Excluir</button>
                     `;
-                    historyList.appendChild(item);
-                });
+                    pendingList.appendChild(item);
+                }
             }
+
             document.getElementById('history-section').style.display = 'block';
         }
 
-        async function addToHistory(action, imageName) {
-            await database.ref('history').push().set({
-                action,
-                imageName,
-                timestamp: Date.now()
-            });
-        }
-
-        function deleteHistory(key) {
-            database.ref(`history/${key}`).remove()
-                .then(() => showHistory())
-                .catch(error => console.error('Error deleting history:', error));
-        }
-
-        // Delete All Images
-        async function deleteAllImages() {
+        // Delete All
+        async function deleteAll() {
             if (!confirm('Tem certeza que deseja apagar tudo?')) return;
 
-            try {
-                const list = await storage.ref('images').listAll();
-                await Promise.all(list.items.map(item => item.delete()));
-                await database.ref('scheduledImages').remove();
-                await database.ref('history').remove();
-                
-                document.getElementById('image-preview').innerHTML = '';
-                document.getElementById('scheduled-image-preview').innerHTML = '';
-                document.getElementById('scheduled-list').innerHTML = '';
-                document.getElementById('history-list').innerHTML = '';
-                alert('Tudo foi removido com sucesso!');
-            } catch (error) {
-                console.error('Error deleting all:', error);
-                alert('Erro ao remover tudo.');
-            }
+            const images = await storage.ref('images').listAll();
+            await Promise.all(images.items.map(item => item.delete()));
+            await db.ref('scheduled').remove();
+            await db.ref('history').remove();
+
+            document.getElementById('immediate-preview').innerHTML = '';
+            document.getElementById('schedule-preview').innerHTML = '';
+            document.getElementById('scheduled-list').innerHTML = '';
+            document.getElementById('history-section').style.display = 'none';
+            alert('Tudo foi removido!');
         }
     </script>
 </body>
