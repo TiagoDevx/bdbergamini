@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamentos de Imagens</title>
+    <title>Gerenciamento de Imagens</title>
     <style>
         * {
             margin: 0;
@@ -336,7 +336,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <script>
-        // Firebase Config com suas credenciais
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyAPcnUH5oj0krqEBcKFkRxg6h7GWiOiGWs",
             authDomain: "bc-berga.firebaseapp.com",
@@ -366,7 +366,7 @@
                 document.querySelector('.container').style.display = 'block';
                 startClock();
                 startScheduler();
-                loadScheduled(); // Carrega a lista inicial de agendamentos
+                loadScheduled();
             } else {
                 alert('Credenciais inválidas!');
             }
@@ -426,52 +426,79 @@
         }
 
         // Agendar
-        async function scheduleUpload() {
+        function scheduleUpload() {
+            console.log('Botão Agendar clicado'); // Log inicial
+
             const files = document.getElementById('schedule-files').files;
-            if (!files.length) return alert('Selecione pelo menos uma imagem!');
+            if (!files.length) {
+                console.log('Nenhuma imagem selecionada');
+                return alert('Selecione pelo menos uma imagem!');
+            }
 
             const startDate = document.getElementById('start-date').value;
             const startTime = document.getElementById('start-time').value;
             const endDate = document.getElementById('end-date').value;
             const endTime = document.getElementById('end-time').value;
 
+            console.log('Campos preenchidos:', { startDate, startTime, endDate, endTime });
+
             if (!startDate || !startTime || !endDate || !endTime) {
+                console.log('Campos de data/hora incompletos');
                 return alert('Preencha todas as datas e horários!');
             }
 
             const start = new Date(`${startDate}T${startTime}`);
             const end = new Date(`${endDate}T${endTime}`);
-            if (start >= end) return alert('O início deve ser antes do término!');
-
-            try {
-                for (const file of files) {
-                    const reader = new FileReader();
-                    await new Promise((resolve) => {
-                        reader.onload = async (e) => {
-                            const base64 = e.target.result.split(',')[1];
-                            const ref = db.ref('scheduled').push();
-                            await ref.set({
-                                name: file.name,
-                                base64,
-                                start: start.toISOString(),
-                                end: end.toISOString(),
-                                status: 'pending',
-                                storageName: null
-                            });
-                            console.log('Agendamento salvo:', ref.key); // Log para depuração
-                            resolve();
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
-                alert('Imagens agendadas com sucesso!');
-                loadScheduled(); // Atualiza a lista imediatamente
-                document.getElementById('schedule-files').value = '';
-                document.getElementById('schedule-preview').innerHTML = '';
-            } catch (error) {
-                console.error('Erro ao agendar:', error);
-                alert('Erro ao agendar imagens!');
+            if (start >= end) {
+                console.log('Data de início maior ou igual ao término');
+                return alert('O início deve ser antes do término!');
             }
+
+            console.log('Iniciando processo de agendamento');
+
+            const promises = Array.from(files).map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const base64 = e.target.result.split(',')[1];
+                        console.log('Imagem convertida para base64:', file.name);
+
+                        const ref = db.ref('scheduled').push();
+                        ref.set({
+                            name: file.name,
+                            base64,
+                            start: start.toISOString(),
+                            end: end.toISOString(),
+                            status: 'pending',
+                            storageName: null
+                        }).then(() => {
+                            console.log('Agendamento salvo com chave:', ref.key);
+                            resolve();
+                        }).catch(error => {
+                            console.error('Erro ao salvar agendamento:', error);
+                            reject(error);
+                        });
+                    };
+                    reader.onerror = (error) => {
+                        console.error('Erro ao ler arquivo:', error);
+                        reject(error);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(promises)
+                .then(() => {
+                    console.log('Todos os agendamentos concluídos');
+                    alert('Imagens agendadas com sucesso!');
+                    loadScheduled();
+                    document.getElementById('schedule-files').value = '';
+                    document.getElementById('schedule-preview').innerHTML = '';
+                })
+                .catch(error => {
+                    console.error('Erro geral no agendamento:', error);
+                    alert('Erro ao agendar imagens!');
+                });
         }
 
         // Carregar Agendamentos
@@ -482,7 +509,7 @@
             list.innerHTML = '<h3>Agendamentos</h3>';
             db.ref('scheduled').on('value', (snapshot) => {
                 const data = snapshot.val();
-                list.innerHTML = '<h3>Agendamentos</h3>'; // Limpa e recria o título
+                list.innerHTML = '<h3>Agendamentos</h3>';
                 if (!data) {
                     list.innerHTML += '<p>Nenhum agendamento encontrado.</p>';
                     return;
@@ -553,7 +580,7 @@
                 } catch (error) {
                     console.error('Erro no scheduler:', error);
                 }
-            }, 30000); // Verifica a cada 30 segundos
+            }, 30000);
         }
 
         // Histórico e Ativos
