@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamentinho de Imagensinha</title>
+    <title>Gerenciamento de Imagens</title>
     <style>
         * {
             margin: 0;
@@ -205,6 +205,15 @@
             background: #e65c00;
         }
 
+        .btn-danger {
+            background: #e65c00;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #cc5200;
+        }
+
         /* Schedule Form */
         .schedule-form {
             display: grid;
@@ -249,6 +258,11 @@
             color: #ff6200;
         }
 
+        .list-item .btn-danger {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
         /* Lista de Imagens Ativas */
         .image-list {
             display: grid;
@@ -276,25 +290,6 @@
         .image-item .info {
             margin: 10px 0;
             color: #333;
-        }
-
-        .image-item .status {
-            font-size: 14px;
-            color: #ff6200;
-        }
-
-        .image-item button {
-            padding: 8px 15px;
-            background: #ff6200;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .image-item button:hover {
-            background: #e65c00;
         }
     </style>
 </head>
@@ -456,6 +451,7 @@
                 alert('Imagens vinculadas com sucesso!');
                 document.getElementById('immediate-files').value = '';
                 document.getElementById('immediate-preview').innerHTML = '';
+                loadActiveImages(); // Atualiza a lista de imagens ativas
             } catch (error) {
                 console.error('Erro ao vincular:', error);
                 alert('Erro ao vincular imagens!');
@@ -566,6 +562,7 @@
                             <div>${name} (${status})</div>
                             <div class="status">${new Date(start).toLocaleString('pt-BR')} - ${new Date(end).toLocaleString('pt-BR')}</div>
                         </div>
+                        <button class="btn btn-danger" onclick="deleteScheduled('${key}')">Excluir</button>
                     `;
                     list.appendChild(item);
                 });
@@ -574,60 +571,50 @@
             });
         }
 
-        // Carregar Imagens Ativas
-        function loadActiveImages() {
+        // Excluir Agendamento
+        async function deleteScheduled(key) {
+            if (!confirm('Tem certeza que deseja excluir este agendamento?')) return;
+
+            try {
+                await db.ref(`scheduled/${key}`).remove();
+                console.log(`Agendamento ${key} excluído com sucesso`);
+                alert('Agendamento excluído!');
+            } catch (error) {
+                console.error('Erro ao excluir agendamento:', error);
+                alert('Erro ao excluir agendamento! Verifique o console.');
+            }
+        }
+
+        // Carregar Imagens Ativas (todas do Storage)
+        async function loadActiveImages() {
             const activeList = document.getElementById('active-images');
             if (!activeList) return console.error('Elemento active-images não encontrado');
 
-            db.ref('scheduled').on('value', (snapshot) => {
-                const data = snapshot.val();
+            try {
+                const result = await storage.ref('images').listAll();
                 activeList.innerHTML = '';
-                if (!data) {
+                if (result.items.length === 0) {
                     activeList.innerHTML = '<p>Nenhuma imagem ativa encontrada.</p>';
                     return;
                 }
 
-                Object.entries(data).forEach(async ([key, { name, end, status, storageName }]) => {
-                    if (status === 'active' && storageName) {
-                        try {
-                            const url = await storage.ref(`images/${storageName}`).getDownloadURL();
-                            const item = document.createElement('div');
-                            item.className = 'image-item';
-                            item.innerHTML = `
-                                <img src="${url}" alt="${name}">
-                                <div class="info">
-                                    <div>${name}</div>
-                                    <div class="status">Ativa até ${new Date(end).toLocaleString('pt-BR')}</div>
-                                </div>
-                                <button onclick="deleteImage('${key}', '${storageName}')">Excluir</button>
-                            `;
-                            activeList.appendChild(item);
-                        } catch (error) {
-                            console.error('Erro ao carregar URL da imagem:', error);
-                        }
+                result.items.forEach(async (itemRef) => {
+                    try {
+                        const url = await itemRef.getDownloadURL();
+                        const name = itemRef.name;
+                        const item = document.createElement('div');
+                        item.className = 'image-item';
+                        item.innerHTML = `
+                            <img src="${url}" alt="${name}">
+                            <div class="info">${name}</div>
+                        `;
+                        activeList.appendChild(item);
+                    } catch (error) {
+                        console.error('Erro ao carregar URL da imagem:', error);
                     }
                 });
-            }, (error) => {
-                console.error('Erro ao carregar imagens ativas:', error);
-            });
-        }
-
-        // Excluir Imagem
-        async function deleteImage(key, storageName) {
-            if (!confirm('Tem certeza que deseja excluir esta imagem?')) return;
-
-            try {
-                await storage.ref(`images/${storageName}`).delete();
-                await db.ref(`scheduled/${key}`).update({ status: 'expired', storageName: null });
-                await db.ref('history').push().set({
-                    action: 'Excluída manualmente',
-                    name: storageName,
-                    timestamp: Date.now()
-                });
-                console.log(`Imagem ${storageName} excluída com sucesso`);
             } catch (error) {
-                console.error('Erro ao excluir imagem:', error);
-                alert('Erro ao excluir imagem! Verifique o console.');
+                console.error('Erro ao listar imagens do Storage:', error);
             }
         }
 
@@ -654,6 +641,7 @@
                                 timestamp: Date.now()
                             });
                             console.log(`Imagem ${fileName} ativada`);
+                            loadActiveImages(); // Atualiza a lista de imagens ativas
                         } else if (status === 'active' && now >= endTime && storageName) {
                             await storage.ref(`images/${storageName}`).delete();
                             await db.ref(`scheduled/${key}`).update({ status: 'expired', storageName: null });
@@ -663,6 +651,7 @@
                                 timestamp: Date.now()
                             });
                             console.log(`Imagem ${storageName} expirada`);
+                            loadActiveImages(); // Atualiza a lista de imagens ativas
                         }
                     }
                 } catch (error) {
