@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamentoss de Imagens</title>
+    <title>Gerenciamentoa de Imagens</title>
     <style>
-        /* CSS permanece igual ao anterior */
+        /* CSS permanece igual */
         * {
             margin: 0;
             padding: 0;
@@ -426,6 +426,14 @@
             }
         }
 
+        // Função para adicionar timeout a uma promessa
+        function withTimeout(promise, ms) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout após ' + ms + 'ms')), ms))
+            ]);
+        }
+
         // Agendar
         function scheduleUpload() {
             console.log('Botão Agendar clicado');
@@ -474,13 +482,15 @@
                             storageName: null
                         };
 
-                        ref.set(data)
+                        console.log('Tentando salvar no Firebase:', data.name);
+
+                        withTimeout(ref.set(data), 10000) // Timeout de 10 segundos
                             .then(() => {
                                 console.log('Agendamento salvo com sucesso, chave:', ref.key);
                                 resolve();
                             })
                             .catch(error => {
-                                console.error('Erro ao salvar no Firebase:', error);
+                                console.error('Erro ao salvar no Firebase:', error.message);
                                 reject(error);
                             });
                     };
@@ -501,7 +511,7 @@
                     document.getElementById('schedule-preview').innerHTML = '';
                 })
                 .catch(error => {
-                    console.error('Erro geral no agendamento:', error);
+                    console.error('Erro geral no agendamento:', error.message);
                     alert('Erro ao agendar imagens! Verifique o console.');
                 });
         }
