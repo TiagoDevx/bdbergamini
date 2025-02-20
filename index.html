@@ -291,6 +291,11 @@
             margin: 10px 0;
             color: #333;
         }
+
+        .image-item .btn-danger {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -362,7 +367,7 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://帘www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <script>
@@ -607,6 +612,7 @@
                         item.innerHTML = `
                             <img src="${url}" alt="${name}">
                             <div class="info">${name}</div>
+                            <button class="btn btn-danger" onclick="deleteActiveImage('${name}')">Excluir</button>
                         `;
                         activeList.appendChild(item);
                     } catch (error) {
@@ -615,6 +621,25 @@
                 });
             } catch (error) {
                 console.error('Erro ao listar imagens do Storage:', error);
+            }
+        }
+
+        // Excluir Imagem Ativa
+        async function deleteActiveImage(fileName) {
+            if (!confirm('Tem certeza que deseja excluir esta imagem ativa?')) return;
+
+            try {
+                await storage.ref(`images/${fileName}`).delete();
+                await db.ref('history').push().set({
+                    action: 'Imagem ativa excluída',
+                    name: fileName,
+                    timestamp: Date.now()
+                });
+                console.log(`Imagem ativa ${fileName} excluída com sucesso`);
+                loadActiveImages(); // Atualiza a lista de imagens ativas
+            } catch (error) {
+                console.error('Erro ao excluir imagem ativa:', error);
+                alert('Erro ao excluir imagem! Verifique o console.');
             }
         }
 
