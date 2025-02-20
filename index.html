@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Imagens</title>
+    <title>Gerenciamentos de Imagens</title>
     <style>
+        /* CSS permanece igual ao anterior */
         * {
             margin: 0;
             padding: 0;
@@ -427,7 +428,7 @@
 
         // Agendar
         function scheduleUpload() {
-            console.log('Botão Agendar clicado'); // Log inicial
+            console.log('Botão Agendar clicado');
 
             const files = document.getElementById('schedule-files').files;
             if (!files.length) {
@@ -464,23 +465,27 @@
                         console.log('Imagem convertida para base64:', file.name);
 
                         const ref = db.ref('scheduled').push();
-                        ref.set({
+                        const data = {
                             name: file.name,
-                            base64,
+                            base64: base64,
                             start: start.toISOString(),
                             end: end.toISOString(),
                             status: 'pending',
                             storageName: null
-                        }).then(() => {
-                            console.log('Agendamento salvo com chave:', ref.key);
-                            resolve();
-                        }).catch(error => {
-                            console.error('Erro ao salvar agendamento:', error);
-                            reject(error);
-                        });
+                        };
+
+                        ref.set(data)
+                            .then(() => {
+                                console.log('Agendamento salvo com sucesso, chave:', ref.key);
+                                resolve();
+                            })
+                            .catch(error => {
+                                console.error('Erro ao salvar no Firebase:', error);
+                                reject(error);
+                            });
                     };
                     reader.onerror = (error) => {
-                        console.error('Erro ao ler arquivo:', error);
+                        console.error('Erro ao converter imagem para base64:', error);
                         reject(error);
                     };
                     reader.readAsDataURL(file);
@@ -497,7 +502,7 @@
                 })
                 .catch(error => {
                     console.error('Erro geral no agendamento:', error);
-                    alert('Erro ao agendar imagens!');
+                    alert('Erro ao agendar imagens! Verifique o console.');
                 });
         }
 
