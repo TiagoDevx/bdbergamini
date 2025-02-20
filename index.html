@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Imagens</title>
+    <title>Gerenciamentos de Imagens</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +18,6 @@
             line-height: 1.6;
         }
 
-        /* Login */
         .login-container {
             display: flex;
             justify-content: center;
@@ -74,7 +73,6 @@
             background: #ff8c00;
         }
 
-        /* Main Container */
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -104,7 +102,6 @@
             font-weight: 500;
         }
 
-        /* Card Sections */
         .card {
             background: white;
             padding: 25px;
@@ -170,7 +167,6 @@
             border: 2px solid #ff8c00;
         }
 
-        /* Buttons */
         .btn-group {
             display: flex;
             gap: 15px;
@@ -214,7 +210,6 @@
             background: #cc5200;
         }
 
-        /* Schedule Form */
         .schedule-form {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -234,7 +229,6 @@
             font-size: 14px;
         }
 
-        /* Lista de Agendamentos */
         .list {
             margin-top: 20px;
         }
@@ -263,7 +257,6 @@
             font-size: 14px;
         }
 
-        /* Lista de Imagens Ativas */
         .image-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -367,7 +360,7 @@
         </div>
     </div>
 
-    <script src="https://帘www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <script>
@@ -456,7 +449,7 @@
                 alert('Imagens vinculadas com sucesso!');
                 document.getElementById('immediate-files').value = '';
                 document.getElementById('immediate-preview').innerHTML = '';
-                loadActiveImages(); // Atualiza a lista de imagens ativas
+                loadActiveImages();
             } catch (error) {
                 console.error('Erro ao vincular:', error);
                 alert('Erro ao vincular imagens!');
@@ -666,7 +659,7 @@
                                 timestamp: Date.now()
                             });
                             console.log(`Imagem ${fileName} ativada`);
-                            loadActiveImages(); // Atualiza a lista de imagens ativas
+                            loadActiveImages();
                         } else if (status === 'active' && now >= endTime && storageName) {
                             await storage.ref(`images/${storageName}`).delete();
                             await db.ref(`scheduled/${key}`).update({ status: 'expired', storageName: null });
@@ -676,7 +669,7 @@
                                 timestamp: Date.now()
                             });
                             console.log(`Imagem ${storageName} expirada`);
-                            loadActiveImages(); // Atualiza a lista de imagens ativas
+                            loadActiveImages();
                         }
                     }
                 } catch (error) {
