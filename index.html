@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamentoa de Imagens</title>
+    <title>Gerenciamento de Imagens</title>
     <style>
-        /* CSS permanece igual */
+        /* CSS permanece igual ao anterior */
         * {
             margin: 0;
             padding: 0;
@@ -345,7 +345,8 @@
             storageBucket: "bc-berga.firebasestorage.app",
             messagingSenderId: "955771763943",
             appId: "1:955771763943:web:b8e2b3c96dc7c8ddaaf642",
-            measurementId: "G-1234T7JC84"
+            measurementId: "G-1234T7JC84",
+            databaseURL: "https://bc-berga-default-rtdb.firebaseio.com/" // Ajuste conforme a região escolhida
         };
 
         const app = firebase.initializeApp(firebaseConfig);
@@ -368,6 +369,7 @@
                 startClock();
                 startScheduler();
                 loadScheduled();
+                testFirebaseConnection();
             } else {
                 alert('Credenciais inválidas!');
             }
@@ -426,12 +428,16 @@
             }
         }
 
-        // Função para adicionar timeout a uma promessa
-        function withTimeout(promise, ms) {
-            return Promise.race([
-                promise,
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout após ' + ms + 'ms')), ms))
-            ]);
+        // Testar Conexão com Firebase
+        function testFirebaseConnection() {
+            console.log('Testando conexão com Firebase...');
+            db.ref('.info/connected').on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    console.log('Conexão com Firebase estabelecida com sucesso!');
+                } else {
+                    console.error('Não conectado ao Firebase!');
+                }
+            });
         }
 
         // Agendar
@@ -484,7 +490,7 @@
 
                         console.log('Tentando salvar no Firebase:', data.name);
 
-                        withTimeout(ref.set(data), 10000) // Timeout de 10 segundos
+                        ref.set(data)
                             .then(() => {
                                 console.log('Agendamento salvo com sucesso, chave:', ref.key);
                                 resolve();
