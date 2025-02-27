@@ -386,6 +386,7 @@
         <!-- Botão de Ação -->
         <div class="btn-group">
             <button class="btn btn-secondary" onclick="deleteAll()">Apagar Tudo</button>
+            <button class="btn btn-primary" onclick="shareToInstagramStories()">Compartilhar nos Stories</button>
         </div>
     </div>
 
@@ -767,6 +768,57 @@
             } catch (error) {
                 console.error('Erro ao apagar tudo:', error);
                 alert('Erro ao apagar tudo!');
+            }
+        }
+
+        // Compartilhar nos Stories do Instagram
+        async function shareToInstagramStories() {
+            try {
+                const activeList = document.getElementById('active-images');
+                if (!activeList || activeList.children.length === 0) {
+                    alert('Nenhuma imagem ativa para compartilhar!');
+                    return;
+                }
+
+                const result = await storage.ref('images').listAll();
+                if (result.items.length === 0) {
+                    alert('Nenhuma imagem ativa encontrada no storage!');
+                    return;
+                }
+
+                // Confirmar com o usuário
+                if (!confirm(`Deseja compartilhar ${result.items.length} imagem(ns) nos Stories do Instagram?`)) return;
+
+                // Iterar sobre as imagens ativas
+                for (const itemRef of result.items) {
+                    try {
+                        const url = await itemRef.getDownloadURL();
+                        const imageName = itemRef.name;
+
+                        // URL de compartilhamento para Instagram Stories
+                        const instagramUrl = `https://www.instagram.com/stories/upload?url=${encodeURIComponent(url)}`;
+
+                        // Abrir a URL em uma nova janela ou aba
+                        window.open(instagramUrl, '_blank');
+
+                        // Registrar no histórico (opcional)
+                        await db.ref('history').push().set({
+                            action: 'Compartilhada no Instagram',
+                            name: imageName,
+                            timestamp: Date.now()
+                        });
+
+                        // Pequeno atraso entre aberturas para evitar bloqueios ou sobrecarga
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    } catch (error) {
+                        console.error(`Erro ao processar ${itemRef.name}:`, error);
+                    }
+                }
+
+                alert('Processo de compartilhamento iniciado! Verifique as janelas abertas.');
+            } catch (error) {
+                console.error('Erro ao compartilhar nos Stories:', error);
+                alert('Erro ao compartilhar! Verifique o console.');
             }
         }
     </script>
