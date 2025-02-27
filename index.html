@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamentos de Imagens</title>
+    <title>Gerenciamentosa de Imagens</title>
     <style>
         * {
             margin: 0;
@@ -289,6 +289,35 @@
             padding: 8px 15px;
             font-size: 14px;
         }
+
+        .progress-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #ff6200;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -357,6 +386,12 @@
         <!-- Botão de Ação -->
         <div class="btn-group">
             <button class="btn btn-secondary" onclick="deleteAll()">Apagar Tudo</button>
+        </div>
+    </div>
+
+    <div class="progress-container" id="progress-container">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
         </div>
     </div>
 
@@ -435,23 +470,40 @@
             const files = document.getElementById('immediate-files').files;
             if (!files.length) return alert('Selecione pelo menos uma imagem!');
 
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress');
+            progressContainer.style.display = 'block';
+            let uploadedFiles = 0;
+
             try {
                 for (const file of files) {
                     const fileName = `${imageCounter++}.jpg`;
                     const ref = storage.ref(`images/${fileName}`);
-                    await ref.put(file);
+                    const uploadTask = ref.put(file);
+
+                    uploadTask.on('state_changed', (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        progressBar.style.width = `${progress}%`;
+                    });
+
+                    await uploadTask;
+                    uploadedFiles++;
+                    progressBar.style.width = `${(uploadedFiles / files.length) * 100}%`;
+
                     await db.ref('history').push().set({
                         action: 'Vinculada',
                         name: fileName,
                         timestamp: Date.now()
                     });
                 }
+                progressContainer.style.display = 'none';
                 alert('Imagens vinculadas com sucesso!');
                 document.getElementById('immediate-files').value = '';
                 document.getElementById('immediate-preview').innerHTML = '';
                 loadActiveImages();
             } catch (error) {
                 console.error('Erro ao vincular:', error);
+                progressContainer.style.display = 'none';
                 alert('Erro ao vincular imagens!');
             }
         }
@@ -645,13 +697,26 @@
                     const data = snapshot.val();
                     if (!data) return;
 
+                    const progressContainer = document.getElementById('progress-container');
+                    const progressBar = document.getElementById('progress');
+                    let processedItems = 0;
+                    const totalItems = Object.keys(data).length;
+
                     for (const [key, { base64, start, end, status, storageName }] of Object.entries(data)) {
                         const startTime = new Date(start);
                         const endTime = new Date(end);
 
                         if (status === 'pending' && now >= startTime && now < endTime) {
+                            progressContainer.style.display = 'block';
                             const fileName = `${imageCounter++}.jpg`;
-                            await storage.ref(`images/${fileName}`).putString(base64, 'base64');
+                            const uploadTask = storage.ref(`images/${fileName}`).putString(base64, 'base64');
+
+                            uploadTask.on('state_changed', (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                progressBar.style.width = `${progress}%`;
+                            });
+
+                            await uploadTask;
                             await db.ref(`scheduled/${key}`).update({ status: 'active', storageName: fileName });
                             await db.ref('history').push().set({
                                 action: 'Ativada',
@@ -659,6 +724,8 @@
                                 timestamp: Date.now()
                             });
                             console.log(`Imagem ${fileName} ativada`);
+                            processedItems++;
+                            progressBar.style.width = `${(processedItems / totalItems) * 100}%`;
                             loadActiveImages();
                         } else if (status === 'active' && now >= endTime && storageName) {
                             await storage.ref(`images/${storageName}`).delete();
@@ -669,11 +736,15 @@
                                 timestamp: Date.now()
                             });
                             console.log(`Imagem ${storageName} expirada`);
+                            processedItems++;
+                            progressBar.style.width = `${(processedItems / totalItems) * 100}%`;
                             loadActiveImages();
                         }
                     }
+                    progressContainer.style.display = 'none';
                 } catch (error) {
                     console.error('Erro no scheduler:', error);
+                    document.getElementById('progress-container').style.display = 'none';
                 }
             }, 30000);
         }
